@@ -1,0 +1,78 @@
+$width: 200px;
+
+.comboBox {
+  &.open {
+    & > button {
+      border-radius: 4px 4px 0 0;
+
+      img {
+        transform: rotate(180deg);
+      }
+    }
+    & > .options {
+      display: flex;
+    }
+  }
+
+  & > button {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    width: $width;
+    border-radius: 4px;
+    padding: 8px 12px;
+    background-color: var(--settings-block-input-bgcolor);
+    border: 2px var(--input-border-color) solid;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+
+    &.open {
+      border-radius: 4px 4px 0 0;
+    }
+
+    &:hover {
+      border-color: var(--input-border-hover-color);
+    }
+
+    img {
+      height: 16px;
+      margin-left: auto;
+    }
+  }
+
+  & > .options {
+    position: absolute;
+    display: none;
+    align-items: center;
+    flex-direction: column;
+    width: $width;
+    border-top: none;
+    box-sizing: border-box;
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+    background-color: #222222;
+    box-shadow: rgba(0, 0, 0, 0.23) 0px 5px 10px,
+      rgba(0, 0, 0, 0.23) 0px 5px 10px;
+
+    &:empty {
+      height: 30px;
+    }
+
+    .option {
+      border: none;
+      width: $width;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      color: white;
+      background-color: #222222;
+      font-weight: bold;
+
+      &:hover {
+        background-color: #464646;
+      }
+    }
+  }
+}

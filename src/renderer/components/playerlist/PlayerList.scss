@@ -1,0 +1,107 @@
+#playerList {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+
+  .id {
+    width: 50px;
+  }
+
+  .ping {
+    width: 75px;
+  }
+
+  .steamID {
+    width: 150px;
+  }
+
+  .name {
+    width: 200px;
+  }
+
+  & > .header {
+    display: flex;
+    background-color: var(--settings-block-header-bgcolor);
+    //text-transform: uppercase;
+    padding: 8px 16px;
+    font-weight: 500;
+    font-size: 14px;
+    margin: 0;
+    border-radius: 4px 4px 0 0;
+    color: white;
+
+    .count {
+      margin-left: auto;
+    }
+  }
+
+  & > .scrollWrapper {
+    display: flex;
+    height: 100%;
+    background-color: var(--settings-block-content-bgcolor);
+    overflow: hidden;
+    padding: 4px;
+    border-radius: 0 0 4px 4px;
+
+    .players {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      padding: 4px;
+      overflow-y: scroll;
+
+      .player {
+        display: flex;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background-color: var(--settings-block-input-bgcolor);
+        border: 2px var(--input-border-color) solid;
+        color: white;
+        font-size: 14px;
+
+        &:not(:last-child) {
+          margin-bottom: 4px;
+        }
+
+        &:hover {
+          border-color: var(--input-border-hover-color);
+        }
+
+        & > .id {
+          font-weight: 500;
+        }
+
+        & > .name {
+          font-weight: bold;
+        }
+
+        & > .kick {
+          margin-left: auto;
+          display: flex;
+          border-radius: 4px;
+          border: none;
+          padding: 4px 12px;
+          background-color: var(--sidebar-active-bgcolor);
+          color: white;
+          font-size: 12px;
+          font-weight: bold;
+          cursor: pointer;
+
+          &:hover {
+            background-color: var(--settings-button-hover-bgcolor);
+          }
+
+          &:active {
+            scale: 0.9;
+          }
+
+          &:disabled {
+            opacity: 0.5;
+          }
+        }
+      }
+    }
+  }
+}

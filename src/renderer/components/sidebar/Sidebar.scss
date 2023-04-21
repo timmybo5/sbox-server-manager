@@ -1,0 +1,51 @@
+#sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: var(--sidebar-bgcolor);
+  box-shadow: 0 0 10px rgba(black, 0.33);
+
+  .controls {
+    margin-top: auto;
+  }
+
+  .sidebarButton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--app-bgcolor);
+    border-radius: 4px;
+    padding: 8px;
+    border: none;
+    height: 40px;
+    width: 100%;
+    transition: scale 0.05s ease-out;
+    cursor: pointer;
+
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+    &:hover {
+      scale: 1.1;
+      background-color: var(--console-output-bgcolor);
+    }
+
+    &:active {
+      scale: 1.15;
+      background-color: var(--console-input-bgcolor);
+    }
+
+    &.active {
+      background-color: var(--sidebar-active-bgcolor);
+    }
+
+    & > img {
+      height: 100%;
+    }
+  }
+}

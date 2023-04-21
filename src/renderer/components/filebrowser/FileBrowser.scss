@@ -1,0 +1,26 @@
+.fileBrowser {
+  input[type='file'] {
+    display: none;
+  }
+
+  & > p {
+    margin: 0;
+    color: white;
+    border: 2px var(--input-border-color) solid;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: var(--settings-block-input-bgcolor);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--input-border-hover-color);
+    }
+
+    &.invalid {
+      color: var(--color-invalid);
+      border-color: var(--color-invalid);
+    }
+  }
+}

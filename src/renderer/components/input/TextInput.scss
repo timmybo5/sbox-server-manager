@@ -1,0 +1,29 @@
+.textInput {
+  & > input {
+    width: 100%;
+    color: white;
+    border: 2px var(--input-border-color) solid;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: var(--settings-block-input-bgcolor);
+
+    &:hover {
+      border-color: var(--input-border-hover-color);
+    }
+
+    &.invalid {
+      border-color: var(--color-invalid);
+    }
+
+    &::placeholder {
+      color: rgba(white, $alpha: 0.4);
+    }
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      display: none;
+    }
+  }
+}

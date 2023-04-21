@@ -1,0 +1,62 @@
+@import './Theme.scss';
+
+::selection {
+  background: var(--selection-bgcolor);
+  color: var(--selection-color);
+}
+
+::-webkit-scrollbar {
+  width: var(--scroll-width);
+
+  &-track {
+    background: var(--scroll-track-bgcolor);
+  }
+
+  &-thumb {
+    background: var(--scroll-thumb-bgcolor);
+  }
+
+  &-thumb:hover {
+    background: var(--scroll-thumb-hover-bgcolor);
+  }
+}
+
+:focus {
+  outline: none;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-size: var(--app-font-size);
+  font-family: var(--app-font-family);
+  color: var(--app-color);
+  background: var(--app-bgcolor);
+  line-height: 1.5;
+}
+
+#app {
+  display: flex;
+  height: 100%;
+  box-sizing: border-box;
+
+  & > .sidebarArea {
+    display: flex;
+    flex-basis: 60px;
+    max-width: 60px;
+    height: 100%;
+  }
+
+  & > .contentArea {
+    display: flex;
+    flex: auto;
+    padding: 10px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+}
