@@ -1,7 +1,9 @@
 # S&Box Server Manager
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/timmybo5/sbox-server-manager)
+
 A Windows tool to manage sbox dedicated servers, powered by Electron.
 
-<img src="https://user-images.githubusercontent.com/4988198/233678477-21b0ceef-fbbd-454c-b80f-604f6353f472.png" width="800"/>
+<img src="https://user-images.githubusercontent.com/4988198/234030980-7711a168-e8ff-4587-acf9-c6d07fd5f2ed.png" width="800"/>
 
 ### How does it work?
 **Output**:
@@ -35,8 +37,8 @@ A Windows tool to manage sbox dedicated servers, powered by Electron.
 * https://github.com/EnriqCG/rcon-srcds
 
 ## Interface
-### Players
-<img src="https://user-images.githubusercontent.com/4988198/233678519-2a8bd6aa-b9b0-4737-8e5f-72bd0c8648e1.png" width="800"/>
+### Server Settings
+<img src="https://user-images.githubusercontent.com/4988198/234031799-ea7105e9-5d32-4b51-9d89-69ae42164880.png" width="800"/>
 
-### Settings
-<img src="https://user-images.githubusercontent.com/4988198/233678534-998fc966-aeda-4450-9de6-c67ef86db039.png" width="800"/>
+### Players
+<img src="https://user-images.githubusercontent.com/4988198/234032142-9d02457b-baf0-4dc8-809a-154c4ef172ee.png" width="800"/>
