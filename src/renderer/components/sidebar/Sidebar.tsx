@@ -45,15 +45,29 @@ const Sidebar = () => {
   return (
     <div id='sidebar'>
       <SidebarButton
+        tooltip='General Settings'
         iconSrc={GeneralSettingsIcon}
         navPath='/settings/general'
       />
-      <SidebarButton iconSrc={ServerSettingsIcon} navPath='/settings/server' />
-      <SidebarButton iconSrc={PlayersIcon} navPath='/players' />
-      <SidebarButton iconSrc={ConsoleIcon} navPath='/console' />
+      <SidebarButton
+        tooltip='Server Settings'
+        iconSrc={ServerSettingsIcon}
+        navPath='/settings/server'
+      />
+      <SidebarButton
+        tooltip='Player List'
+        iconSrc={PlayersIcon}
+        navPath='/players'
+      />
+      <SidebarButton
+        tooltip='Console'
+        iconSrc={ConsoleIcon}
+        navPath='/console'
+      />
 
       <div className='controls'>
         <SidebarButton
+          tooltip='Start Server'
           disabled={serverRunning}
           iconSrc={StartIcon}
           onClick={() =>
@@ -64,6 +78,7 @@ const Sidebar = () => {
           }
         />
         <SidebarButton
+          tooltip='Stop Server'
           disabled={!serverRunning}
           iconSrc={StopIcon}
           onClick={() => windowAny.electronAPI.stopServer()}

@@ -5,6 +5,7 @@ import './Sidebar.scss';
 interface SidebarButtonProps {
   navPath?: string;
   iconSrc: string;
+  tooltip?: string;
   disabled?: boolean;
   onClick?: () => void;
 }
@@ -12,6 +13,7 @@ interface SidebarButtonProps {
 const SidebarButton = ({
   navPath,
   iconSrc,
+  tooltip,
   disabled,
   onClick,
 }: SidebarButtonProps) => {
@@ -31,6 +33,11 @@ const SidebarButton = ({
       }}
     >
       <img src={iconSrc} />
+      {tooltip && (
+        <div className='tooltip'>
+          <span>{tooltip}</span>
+        </div>
+      )}
     </button>
   );
 };
