@@ -56,7 +56,6 @@ const App = () => {
   useEffect(() => {
     windowAny.electronAPI.onServerHeartbeat(
       (event: IpcMainEvent, isRunning: boolean) => {
-        console.log(isRunning);
         dispatch(setServerRunning(isRunning));
       },
     );
