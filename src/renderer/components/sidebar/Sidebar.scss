@@ -24,20 +24,27 @@
     height: 40px;
     width: 100%;
     transition: scale 0.05s ease-out;
-    cursor: pointer;
 
     &:not(:last-child) {
       margin-bottom: 10px;
     }
 
-    &:hover {
-      scale: 1.1;
-      background-color: var(--console-output-bgcolor);
+    &:disabled {
+      opacity: 0.5;
     }
 
-    &:active {
-      scale: 1.15;
-      background-color: var(--console-input-bgcolor);
+    &:not(:disabled) {
+      cursor: pointer;
+
+      &:hover {
+        scale: 1.1;
+        background-color: var(--console-output-bgcolor);
+      }
+
+      &:active {
+        scale: 1.15;
+        background-color: var(--console-input-bgcolor);
+      }
     }
 
     &.active {

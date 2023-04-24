@@ -1,10 +1,14 @@
 import {
   addToHistory,
+  setServerRunning,
+  updatePlayers,
+} from '@renderer/store/DataSlice';
+import {
+  loadGeneralSettings,
   loadServerSettings,
   setConfigFiles,
   setConfigName,
   setScrollToBottom,
-  updatePlayers,
 } from '@renderer/store/SettingsSlice';
 import { ConsoleLog } from '@renderer/utils/ConsoleLog';
 import { shouldScrollToBottom } from '@renderer/utils/ScrollToBottom';
@@ -15,7 +19,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.scss';
 import Console from './console/Console';
 import PlayerList, { Player } from './playerlist/PlayerList';
-import Settings from './settings/Settings';
+import GeneralSettings from './settings/GeneralSettings';
+import ServerSettings from './settings/ServerSettings';
 import Sidebar from './sidebar/Sidebar';
 
 const App = () => {
@@ -47,6 +52,18 @@ const App = () => {
     return () => windowAny.electronAPI.removeOnPlayersUpdate();
   }, []);
 
+  // Heartbeat
+  useEffect(() => {
+    windowAny.electronAPI.onServerHeartbeat(
+      (event: IpcMainEvent, isRunning: boolean) => {
+        console.log(isRunning);
+        dispatch(setServerRunning(isRunning));
+      },
+    );
+
+    return () => windowAny.electronAPI.removeOnServerHeartbeat();
+  }, []);
+
   // Load configuration & settings
   useEffect(() => {
     const loadConfigAndSettings = async () => {
@@ -54,13 +71,19 @@ const App = () => {
         await windowAny.electronAPI.getConfigFiles();
       dispatch(setConfigFiles(configFiles));
 
-      // Auto load the first found setting
+      // Server, auto load the first found setting
       if (configFiles.length > 0) {
         const configName = configFiles[0];
-        const result = await windowAny.electronAPI.loadSettings(configName);
-        dispatch(loadServerSettings(result));
+        const serverSettings = await windowAny.electronAPI.loadServerSettings(
+          configName,
+        );
+        dispatch(loadServerSettings(serverSettings));
         dispatch(setConfigName(configName));
       }
+
+      // General
+      const generalSettings = await windowAny.electronAPI.loadGeneralSettings();
+      dispatch(loadGeneralSettings(generalSettings));
     };
 
     loadConfigAndSettings();
@@ -77,7 +100,8 @@ const App = () => {
             path='/console'
             element={<Console outputRef={consoleOutputRef} />}
           />
-          <Route path='/settings' element={<Settings />} />
+          <Route path='/settings/general' element={<GeneralSettings />} />
+          <Route path='/settings/server' element={<ServerSettings />} />
           <Route path='/players' element={<PlayerList />} />
           <Route path='*' element={<Navigate to='/console' replace />} />
         </Routes>

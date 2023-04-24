@@ -2,15 +2,37 @@ import { app, ipcMain } from 'electron';
 import fs from 'fs';
 import { ServerSettings } from './sbox';
 
+// C:\Users\XXX\AppData\Roaming\Server Manager\
 const userDataPath = app.getPath('userData');
-const settingsPath = userDataPath + '/Server Settings/';
+const generalSettingsPath = userDataPath + '/General Settings/';
+const serverSettingsPath = userDataPath + '/Server Settings/';
 
-if (!fs.existsSync(settingsPath)) {
-  fs.mkdirSync(settingsPath);
-}
+const saveData = (fileName: string, path: string, data: any) => {
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path);
+  }
+
+  const filePath = path + fileName + '.json';
+  const jsonData = JSON.stringify(data);
+
+  fs.writeFile(filePath, jsonData, (err) => {
+    console.log(err?.message ?? `Data saved in ${fileName}`);
+  });
+};
+
+const loadData = (fileName: string, path: string): any => {
+  const filePath = path + fileName + '.json';
+
+  if (!fs.existsSync(filePath)) return '';
+
+  const fileData = fs.readFileSync(filePath);
+  const parsedData = JSON.parse(fileData.toString());
+
+  return parsedData;
+};
 
 const getConfigFiles = (): string[] => {
-  const files = fs.readdirSync(settingsPath);
+  const files = fs.readdirSync(serverSettingsPath);
   const filesNoExt = files.map((f) => f.replace('.json', ''));
 
   return filesNoExt;
@@ -18,27 +40,25 @@ const getConfigFiles = (): string[] => {
 
 export const registerPersistenceEvents = () => {
   ipcMain.on(
-    'saveSettings',
+    'saveServerSettings',
     async (event, fileName: string, serverSettings: ServerSettings) => {
-      const filePath = settingsPath + fileName + '.json';
-      const data = JSON.stringify(serverSettings);
-
-      // C:\Users\XXX\AppData\Roaming\Server Manager\settings
-      fs.writeFile(filePath, data, (err) => {
-        console.log(err?.message ?? 'Data saved!');
-      });
+      saveData(fileName, serverSettingsPath, serverSettings);
     },
   );
 
-  ipcMain.handle('loadSettings', async (event, fileName: string) => {
-    const filePath = settingsPath + fileName + '.json';
+  ipcMain.handle('loadServerSettings', async (event, fileName: string) => {
+    return loadData(fileName, serverSettingsPath);
+  });
 
-    if (!fs.existsSync(filePath)) return '';
+  ipcMain.on(
+    'saveGeneralSettings',
+    async (event, generalSettings: ServerSettings) => {
+      saveData('general', generalSettingsPath, generalSettings);
+    },
+  );
 
-    const fileData = fs.readFileSync(filePath);
-    const serverSettings = JSON.parse(fileData.toString());
-
-    return serverSettings;
+  ipcMain.handle('loadGeneralSettings', async (event) => {
+    return loadData('general', generalSettingsPath);
   });
 
   ipcMain.handle('getConfigFiles', async (event) => {
@@ -48,8 +68,8 @@ export const registerPersistenceEvents = () => {
   ipcMain.handle(
     'renameConfigFile',
     async (event, oldname: string, newName: string) => {
-      const olFilePath = settingsPath + oldname + '.json';
-      const newFilePath = settingsPath + newName + '.json';
+      const olFilePath = serverSettingsPath + oldname + '.json';
+      const newFilePath = serverSettingsPath + newName + '.json';
 
       fs.renameSync(olFilePath, newFilePath);
 
@@ -58,7 +78,7 @@ export const registerPersistenceEvents = () => {
   );
 
   ipcMain.on('deleteConfigFile', async (event, fileName: string) => {
-    const filePath = settingsPath + fileName + '.json';
+    const filePath = serverSettingsPath + fileName + '.json';
     fs.rmSync(filePath);
   });
 };

@@ -1,5 +1,5 @@
+import { addToHistory, dataSelector } from '@renderer/store/DataSlice';
 import {
-  addToHistory,
   setScrollToBottom,
   settingsSelector,
 } from '@renderer/store/SettingsSlice';
@@ -16,7 +16,8 @@ interface ConsoleProps {
 }
 
 const Console = ({ outputRef }: ConsoleProps) => {
-  const { history, scrollToBottom } = useSelector(settingsSelector);
+  const { scrollToBottom } = useSelector(settingsSelector);
+  const { history } = useSelector(dataSelector);
   const windowAny = window as any;
   const dispatch = useDispatch();
 

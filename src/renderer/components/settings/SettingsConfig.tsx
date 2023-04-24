@@ -3,7 +3,7 @@ import ComboBox from '@components/combobox/ComboBox';
 import TextInput from '@components/input/TextInput';
 import { ServerSettings } from '@main/sbox';
 import {
-  defaultState,
+  defaultSettingsState,
   loadServerSettings,
   setConfigFiles,
   setConfigName,
@@ -19,13 +19,13 @@ const SettingsConfig = () => {
 
   useEffect(() => {
     if (configFiles.length == 0) {
-      createConfig(true);
+      createServerConfig(true);
     }
   }, [configFiles]);
 
   const changeConfig = async (configName: string) => {
     const windowAny: any = window;
-    const result = await windowAny.electronAPI.loadSettings(configName);
+    const result = await windowAny.electronAPI.loadServerSettings(configName);
     console.log(configName);
     console.log(result);
     dispatch(loadServerSettings(result));
@@ -43,28 +43,27 @@ const SettingsConfig = () => {
     dispatch(setConfigName(newConfigName));
   };
 
-  const createConfig = async (force = false) => {
-    if (!force && configName == defaultState.configName) return;
+  const createServerConfig = async (force = false) => {
+    if (!force && configName == defaultSettingsState.configName) return;
     const windowAny: any = window;
     const serverSettings: ServerSettings = {
-      serverPath: defaultState.serverPath,
-      port: defaultState.port,
-      gamemode: defaultState.gamemode,
-      map: defaultState.map,
-      maxPlayers: defaultState.maxPlayers,
-      hostname: defaultState.hostname,
-      rconPass: defaultState.rconPass,
-      extraParams: defaultState.extraParams,
+      port: defaultSettingsState.port,
+      gamemode: defaultSettingsState.gamemode,
+      map: defaultSettingsState.map,
+      maxPlayers: defaultSettingsState.maxPlayers,
+      hostname: defaultSettingsState.hostname,
+      rconPass: defaultSettingsState.rconPass,
+      extraParams: defaultSettingsState.extraParams,
     };
 
-    await windowAny.electronAPI.saveSettings(
-      defaultState.configName,
+    await windowAny.electronAPI.saveServerSettings(
+      defaultSettingsState.configName,
       serverSettings,
     );
 
     dispatch(loadServerSettings(serverSettings));
-    dispatch(setConfigName(defaultState.configName));
-    dispatch(setConfigFiles([...configFiles, defaultState.configName]));
+    dispatch(setConfigName(defaultSettingsState.configName));
+    dispatch(setConfigFiles([...configFiles, defaultSettingsState.configName]));
   };
 
   const deleteConfig = async () => {
@@ -81,7 +80,7 @@ const SettingsConfig = () => {
     if (configFiles.length > 0) {
       changeConfig(newConfigFiles[0]);
     } else {
-      createConfig();
+      createServerConfig();
     }
   };
 
@@ -100,9 +99,9 @@ const SettingsConfig = () => {
       />
 
       <Button
-        disabled={configName == defaultState.configName}
+        disabled={configName == defaultSettingsState.configName}
         className='new'
-        onClick={createConfig}
+        onClick={createServerConfig}
       >
         New
       </Button>

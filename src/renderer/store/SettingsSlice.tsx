@@ -1,10 +1,9 @@
-import { Player } from '@components/playerlist/PlayerList';
-import { ServerSettings } from '@main/sbox';
+import { GeneralSettings, ServerSettings } from '@main/sbox';
 import { createAction, createSlice } from '@reduxjs/toolkit';
-import { ConsoleLog, formatConsoleLog } from '@renderer/utils/ConsoleLog';
 
-export type SetSettingPayloadKey =
-  | 'serverPath'
+export type GeneralSettingPayloadKey = 'serverPath' | 'steamCMDPath';
+
+export type ServerSettingPayloadKey =
   | 'port'
   | 'gamemode'
   | 'map'
@@ -13,16 +12,29 @@ export type SetSettingPayloadKey =
   | 'rconPass'
   | 'extraParams';
 
-type SetSettingPayload = {
-  key: SetSettingPayloadKey;
+type GeneralSettingPayload = {
+  key: GeneralSettingPayloadKey;
+  value: string | boolean;
+};
+
+type ServerSettingPayload = {
+  key: ServerSettingPayloadKey;
   value: string | number;
 };
 
-export const setSetting = createAction<SetSettingPayload>('setSetting');
+export const setGeneralSetting =
+  createAction<GeneralSettingPayload>('setGeneralSetting');
 
-export const defaultState = {
-  configName: 'New Server',
+export const setServerSetting =
+  createAction<ServerSettingPayload>('setServerSetting');
+
+export const defaultSettingsState = {
+  // General
+  steamCMDPath: '',
   serverPath: '',
+
+  // Server
+  configName: 'New Server',
   port: 27015,
   gamemode: 'facepunch.sandbox',
   map: 'facepunch.flatgrass',
@@ -31,23 +43,14 @@ export const defaultState = {
   rconPass: 'password',
   extraParams: '',
   scrollToBottom: true,
-  history: [] as ConsoleLog[],
-  players: [] as Player[],
+
   configFiles: [] as string[],
 };
 
 export const settingsSlice = createSlice({
   name: 'settings',
-  initialState: defaultState,
+  initialState: defaultSettingsState,
   reducers: {
-    addToHistory: (state, { payload }) => {
-      const log: ConsoleLog = payload;
-      const formattedLog = formatConsoleLog(log);
-      state.history = [...state.history, formattedLog];
-    },
-    updatePlayers: (state, { payload }) => {
-      state.players = [...payload];
-    },
     setScrollToBottom: (state, { payload }) => {
       state.scrollToBottom = payload;
     },
@@ -57,21 +60,30 @@ export const settingsSlice = createSlice({
     setConfigName: (state, { payload }) => {
       state.configName = payload;
     },
+    loadGeneralSettings: (state, { payload }) => {
+      const serverSettings: GeneralSettings = payload;
+
+      state.steamCMDPath = serverSettings.steamCMDPath;
+      state.serverPath = serverSettings.serverPath;
+    },
     loadServerSettings: (state, { payload }) => {
       const serverSettings: ServerSettings = payload;
 
-      for (const [key, value] of Object.entries(serverSettings)) {
-        (state as any)[key] = value;
-      }
+      state.port = serverSettings.port;
+      state.gamemode = serverSettings.gamemode;
+      state.map = serverSettings.map;
+      state.maxPlayers = serverSettings.maxPlayers;
+      state.hostname = serverSettings.hostname;
+      state.rconPass = serverSettings.rconPass;
+      state.extraParams = serverSettings.extraParams;
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(setSetting, (state, { payload }) => {
+    builder.addCase(setServerSetting, (state, { payload }) => {
       (state as any)[payload.key] = payload.value;
 
       // Save every change
       const serverSettings: ServerSettings = {
-        serverPath: state.serverPath,
         port: state.port,
         gamemode: state.gamemode,
         map: state.map,
@@ -81,19 +93,30 @@ export const settingsSlice = createSlice({
         extraParams: state.extraParams,
       };
 
-      (window as any).electronAPI.saveSettings(
+      (window as any).electronAPI.saveServerSettings(
         state.configName,
         serverSettings,
       );
+    });
+
+    builder.addCase(setGeneralSetting, (state, { payload }) => {
+      (state as any)[payload.key] = payload.value;
+
+      // Save every change
+      const generalSettings: GeneralSettings = {
+        steamCMDPath: state.steamCMDPath,
+        serverPath: state.serverPath,
+      };
+
+      (window as any).electronAPI.saveGeneralSettings(generalSettings);
     });
   },
 });
 
 export const settingsSelector = (state: any) => state.settings;
 export const {
-  addToHistory,
-  updatePlayers,
   setScrollToBottom,
+  loadGeneralSettings,
   loadServerSettings,
   setConfigFiles,
   setConfigName,

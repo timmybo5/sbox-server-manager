@@ -1,4 +1,4 @@
-import { settingsSelector } from '@renderer/store/SettingsSlice';
+import { dataSelector } from '@renderer/store/DataSlice';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import './PlayerList.scss';
@@ -11,7 +11,7 @@ export type Player = {
 };
 
 const PlayerList = () => {
-  const { players } = useSelector(settingsSelector);
+  const { players } = useSelector(dataSelector);
   const [isKicking, setKicking] = useState<boolean>(false);
 
   const kickPlayer = (id: string) => {

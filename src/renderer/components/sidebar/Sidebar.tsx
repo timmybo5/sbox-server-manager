@@ -1,9 +1,12 @@
 import ConsoleIcon from '@assets/images/console.png';
 import PlayersIcon from '@assets/images/players.png';
-import SettingIcon from '@assets/images/settings.png';
+import ServerSettingsIcon from '@assets/images/server_settings.png';
+import GeneralSettingsIcon from '@assets/images/settings.png';
+
 import StopIcon from '@assets/images/shutdown.png';
 import StartIcon from '@assets/images/start.png';
-import { ServerParameters } from '@main/sbox';
+import { ServerSettings } from '@main/sbox';
+import { dataSelector } from '@renderer/store/DataSlice';
 import { settingsSelector } from '@renderer/store/SettingsSlice';
 import React from 'react';
 import { useSelector } from 'react-redux';
@@ -12,6 +15,7 @@ import SidebarButton from './SidebarButton';
 
 const Sidebar = () => {
   const {
+    steamCMDPath,
     serverPath,
     port,
     gamemode,
@@ -21,10 +25,11 @@ const Sidebar = () => {
     rconPass,
     extraParams,
   } = useSelector(settingsSelector);
+  const { serverRunning } = useSelector(dataSelector);
   const windowAny = window as any;
 
-  const constructParams = (): ServerParameters => {
-    const serverParams: ServerParameters = {
+  const constructParams = (): ServerSettings => {
+    const serverParams: ServerSettings = {
       port,
       gamemode,
       map,
@@ -39,18 +44,27 @@ const Sidebar = () => {
 
   return (
     <div id='sidebar'>
-      <SidebarButton iconSrc={SettingIcon} navPath='/settings' />
+      <SidebarButton
+        iconSrc={GeneralSettingsIcon}
+        navPath='/settings/general'
+      />
+      <SidebarButton iconSrc={ServerSettingsIcon} navPath='/settings/server' />
       <SidebarButton iconSrc={PlayersIcon} navPath='/players' />
       <SidebarButton iconSrc={ConsoleIcon} navPath='/console' />
 
       <div className='controls'>
         <SidebarButton
+          disabled={serverRunning}
           iconSrc={StartIcon}
           onClick={() =>
-            windowAny.electronAPI.startServer(serverPath, constructParams())
+            windowAny.electronAPI.startServer(
+              { steamCMDPath, serverPath },
+              constructParams(),
+            )
           }
         />
         <SidebarButton
+          disabled={!serverRunning}
           iconSrc={StopIcon}
           onClick={() => windowAny.electronAPI.stopServer()}
         />
