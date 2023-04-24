@@ -103,7 +103,10 @@ export const isValidServer = () => {
 };
 
 const updatePlayerList = () => {
-  if (!isValidServer()) return;
+  if (!isValidServer()) {
+    appWindow.webContents.send('updatePlayers', []);
+    return;
+  }
 
   runCommand(
     'status',
