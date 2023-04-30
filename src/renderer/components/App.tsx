@@ -66,23 +66,32 @@ const App = () => {
   // Load configuration & settings
   useEffect(() => {
     const loadConfigAndSettings = async () => {
+      // General
+      const generalSettings = await windowAny.electronAPI.loadGeneralSettings();
+      dispatch(loadGeneralSettings(generalSettings));
+
+      // Config files
       const configFiles: string[] =
         await windowAny.electronAPI.getConfigFiles();
       dispatch(setConfigFiles(configFiles));
 
       // Server, auto load the first found setting
       if (configFiles.length > 0) {
-        const configName = configFiles[0];
+        let configName = configFiles[0];
+
+        if (
+          generalSettings.activeConfig &&
+          configFiles.includes(generalSettings.activeConfig)
+        ) {
+          configName = generalSettings.activeConfig;
+        }
+
         const serverSettings = await windowAny.electronAPI.loadServerSettings(
           configName,
         );
         dispatch(loadServerSettings(serverSettings));
         dispatch(setConfigName(configName));
       }
-
-      // General
-      const generalSettings = await windowAny.electronAPI.loadGeneralSettings();
-      dispatch(loadGeneralSettings(generalSettings));
     };
 
     loadConfigAndSettings();

@@ -26,8 +26,7 @@ const SettingsConfig = () => {
   const changeConfig = async (configName: string) => {
     const windowAny: any = window;
     const result = await windowAny.electronAPI.loadServerSettings(configName);
-    console.log(configName);
-    console.log(result);
+
     dispatch(loadServerSettings(result));
     dispatch(setConfigName(configName));
   };

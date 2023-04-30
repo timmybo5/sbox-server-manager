@@ -59,6 +59,15 @@ export const settingsSlice = createSlice({
     },
     setConfigName: (state, { payload }) => {
       state.configName = payload;
+
+      // Save active config
+      const generalSettings: GeneralSettings = {
+        activeConfig: state.configName,
+        steamCMDPath: state.steamCMDPath,
+        serverPath: state.serverPath,
+      };
+
+      (window as any).electronAPI.saveGeneralSettings(generalSettings);
     },
     loadGeneralSettings: (state, { payload }) => {
       const serverSettings: GeneralSettings = payload;
@@ -104,6 +113,7 @@ export const settingsSlice = createSlice({
 
       // Save every change
       const generalSettings: GeneralSettings = {
+        activeConfig: state.configName,
         steamCMDPath: state.steamCMDPath,
         serverPath: state.serverPath,
       };
