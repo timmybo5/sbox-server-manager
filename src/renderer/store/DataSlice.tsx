@@ -2,6 +2,8 @@ import { Player } from '@components/playerlist/PlayerList';
 import { createSlice } from '@reduxjs/toolkit';
 import { ConsoleLog, formatConsoleLog } from '@renderer/utils/ConsoleLog';
 
+const maxHistoryEntries = 500;
+
 export const defaultDataState = {
   serverRunning: false,
   history: [] as ConsoleLog[],
@@ -15,7 +17,10 @@ export const dataSlice = createSlice({
     addToHistory: (state, { payload }) => {
       const log: ConsoleLog = payload;
       const formattedLog = formatConsoleLog(log);
-      state.history = [...state.history, formattedLog];
+      state.history = [
+        ...state.history.splice(-maxHistoryEntries),
+        formattedLog,
+      ];
     },
     updatePlayers: (state, { payload }) => {
       state.players = [...payload];
