@@ -31,12 +31,18 @@ export type ServerSettings = {
 
 export let activeServerParams: ServerSettings;
 let defaultAppWindowTitle: string;
+let activeAppWindowTitle: string;
 
 const updateAndStartServer = (
   steamCMDPath: string,
   serverPath: string,
   serverParams: ServerSettings,
 ) => {
+  // window title
+  defaultAppWindowTitle ??= appWindow.getTitle();
+  activeAppWindowTitle = 'SM - Updating...';
+  appWindow.setTitle(activeAppWindowTitle);
+
   updateServer(steamCMDPath, serverPath);
 
   updateProc.on('close', (code: number) => {
@@ -126,11 +132,8 @@ const startServer = (
   appWindow.webContents.send('sendToConsole', log);
 
   // window title
-  if (defaultAppWindowTitle == null) {
-    defaultAppWindowTitle = appWindow.getTitle();
-  }
-
-  appWindow.setTitle(`SM - ${serverParams.hostname}`);
+  activeAppWindowTitle = `SM - ${serverParams.hostname}`;
+  appWindow.setTitle(activeAppWindowTitle);
 
   setTimeout(updatePlayerList, 5000);
 
@@ -198,6 +201,9 @@ const updatePlayerList = () => {
     (data) => {
       const players = parseStatusPlayerList(data);
       appWindow.webContents.send('updatePlayers', players);
+      appWindow.setTitle(
+        `${activeAppWindowTitle} - ${players.length}/${activeServerParams.maxPlayers}`,
+      );
     },
     (reply) => {
       console.error(`[RCON ERR]: ${reply}`);
