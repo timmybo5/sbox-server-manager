@@ -1,5 +1,6 @@
 import { GeneralSettings, ServerSettings } from '@main/sbox';
 import { createAction, createSlice } from '@reduxjs/toolkit';
+import { RootState } from './RenderStore';
 
 export type GeneralSettingPayloadKey = 'serverPath' | 'steamCMDPath';
 
@@ -67,7 +68,7 @@ export const settingsSlice = createSlice({
         serverPath: state.serverPath,
       };
 
-      (window as any).electronAPI.saveGeneralSettings(generalSettings);
+      window.electronAPI.saveGeneralSettings(generalSettings);
     },
     loadGeneralSettings: (state, { payload }) => {
       const serverSettings: GeneralSettings = payload;
@@ -102,10 +103,7 @@ export const settingsSlice = createSlice({
         extraParams: state.extraParams,
       };
 
-      (window as any).electronAPI.saveServerSettings(
-        state.configName,
-        serverSettings,
-      );
+      window.electronAPI.saveServerSettings(state.configName, serverSettings);
     });
 
     builder.addCase(setGeneralSetting, (state, { payload }) => {
@@ -118,12 +116,12 @@ export const settingsSlice = createSlice({
         serverPath: state.serverPath,
       };
 
-      (window as any).electronAPI.saveGeneralSettings(generalSettings);
+      window.electronAPI.saveGeneralSettings(generalSettings);
     });
   },
 });
 
-export const settingsSelector = (state: any) => state.settings;
+export const settingsSelector = (state: RootState) => state.settings;
 export const {
   setScrollToBottom,
   loadGeneralSettings,

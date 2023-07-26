@@ -1,6 +1,7 @@
 import { Player } from '@components/playerlist/PlayerList';
 import { createSlice } from '@reduxjs/toolkit';
 import { ConsoleLog, formatConsoleLog } from '@renderer/utils/ConsoleLog';
+import { RootState } from './RenderStore';
 
 const maxHistoryEntries = 500;
 
@@ -31,6 +32,6 @@ export const dataSlice = createSlice({
   },
 });
 
-export const dataSelector = (state: any) => state.data;
+export const dataSelector = (state: RootState) => state.data;
 export const { addToHistory, updatePlayers, setServerRunning } =
   dataSlice.actions;
