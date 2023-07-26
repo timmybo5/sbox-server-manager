@@ -62,6 +62,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
+    "compare-versions": "^6.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "rcon-srcds": "^2.0.1",
     "react": "^18.2.0",
