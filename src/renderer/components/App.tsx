@@ -26,11 +26,10 @@ import Sidebar from './sidebar/Sidebar';
 const App = () => {
   const consoleOutputRef = useRef(null);
   const dispatch = useDispatch();
-  const windowAny = window as any;
 
   // History
   useEffect(() => {
-    windowAny.electronAPI.onSendToConsole(
+    window.electronAPI.onSendToConsole(
       (event: IpcMainEvent, log: ConsoleLog) => {
         const shouldScroll = shouldScrollToBottom(consoleOutputRef);
         dispatch(setScrollToBottom(shouldScroll));
@@ -38,41 +37,40 @@ const App = () => {
       },
     );
 
-    return () => windowAny.electronAPI.removeOnSendToConsole();
+    return () => window.electronAPI.removeOnSendToConsole();
   }, []);
 
   // Players
   useEffect(() => {
-    windowAny.electronAPI.onPlayersUpdate(
+    window.electronAPI.onPlayersUpdate(
       (event: IpcMainEvent, players: Player[]) => {
         dispatch(updatePlayers(players));
       },
     );
 
-    return () => windowAny.electronAPI.removeOnPlayersUpdate();
+    return () => window.electronAPI.removeOnPlayersUpdate();
   }, []);
 
   // Heartbeat
   useEffect(() => {
-    windowAny.electronAPI.onServerHeartbeat(
+    window.electronAPI.onServerHeartbeat(
       (event: IpcMainEvent, isRunning: boolean) => {
         dispatch(setServerRunning(isRunning));
       },
     );
 
-    return () => windowAny.electronAPI.removeOnServerHeartbeat();
+    return () => window.electronAPI.removeOnServerHeartbeat();
   }, []);
 
   // Load configuration & settings
   useEffect(() => {
     const loadConfigAndSettings = async () => {
       // General
-      const generalSettings = await windowAny.electronAPI.loadGeneralSettings();
+      const generalSettings = await window.electronAPI.loadGeneralSettings();
       dispatch(loadGeneralSettings(generalSettings));
 
       // Config files
-      const configFiles: string[] =
-        await windowAny.electronAPI.getConfigFiles();
+      const configFiles: string[] = await window.electronAPI.getConfigFiles();
       dispatch(setConfigFiles(configFiles));
 
       // Server, auto load the first found setting
@@ -86,7 +84,7 @@ const App = () => {
           configName = generalSettings.activeConfig;
         }
 
-        const serverSettings = await windowAny.electronAPI.loadServerSettings(
+        const serverSettings = await window.electronAPI.loadServerSettings(
           configName,
         );
         dispatch(loadServerSettings(serverSettings));

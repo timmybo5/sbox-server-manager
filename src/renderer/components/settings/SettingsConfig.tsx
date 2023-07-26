@@ -24,16 +24,14 @@ const SettingsConfig = () => {
   }, [configFiles]);
 
   const changeConfig = async (configName: string) => {
-    const windowAny: any = window;
-    const result = await windowAny.electronAPI.loadServerSettings(configName);
+    const result = await window.electronAPI.loadServerSettings(configName);
 
     dispatch(loadServerSettings(result));
     dispatch(setConfigName(configName));
   };
 
   const renameConfig = async (newConfigName: string) => {
-    const windowAny: any = window;
-    const configFiles = await windowAny.electronAPI.renameConfigFile(
+    const configFiles = await window.electronAPI.renameConfigFile(
       configName,
       newConfigName,
     );
@@ -44,7 +42,6 @@ const SettingsConfig = () => {
 
   const createServerConfig = async (force = false) => {
     if (!force && configName == defaultSettingsState.configName) return;
-    const windowAny: any = window;
     const serverSettings: ServerSettings = {
       port: defaultSettingsState.port,
       gamemode: defaultSettingsState.gamemode,
@@ -55,7 +52,7 @@ const SettingsConfig = () => {
       extraParams: defaultSettingsState.extraParams,
     };
 
-    await windowAny.electronAPI.saveServerSettings(
+    await window.electronAPI.saveServerSettings(
       defaultSettingsState.configName,
       serverSettings,
     );
@@ -67,8 +64,7 @@ const SettingsConfig = () => {
 
   const deleteConfig = async () => {
     if (configFiles.length <= 1) return;
-    const windowAny: any = window;
-    await windowAny.electronAPI.deleteConfigFile(configName);
+    await window.electronAPI.deleteConfigFile(configName);
 
     const newConfigFiles = (configFiles as string[]).filter(
       (e) => e != configName,

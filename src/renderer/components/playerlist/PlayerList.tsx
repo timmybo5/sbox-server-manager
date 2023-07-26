@@ -15,8 +15,7 @@ const PlayerList = () => {
   const [isKicking, setKicking] = useState<boolean>(false);
 
   const kickPlayer = (id: string) => {
-    const windowAny: any = window;
-    windowAny.electronAPI.kickPlayer(id);
+    window.electronAPI.kickPlayer(id);
   };
 
   useEffect(() => {

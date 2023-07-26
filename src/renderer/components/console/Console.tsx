@@ -18,7 +18,6 @@ interface ConsoleProps {
 const Console = ({ outputRef }: ConsoleProps) => {
   const { scrollToBottom } = useSelector(settingsSelector);
   const { history } = useSelector(dataSelector);
-  const windowAny = window as any;
   const dispatch = useDispatch();
 
   const addToOutput = (value: string) => {
@@ -35,7 +34,7 @@ const Console = ({ outputRef }: ConsoleProps) => {
   const onCommand = async (cmd: string) => {
     if (cmd.trim().length == 0) return;
 
-    const res = await windowAny.electronAPI.runCommand(cmd);
+    const res = await window.electronAPI.runCommand(cmd);
 
     if (res.trim().length > 0) {
       addToOutput(res);

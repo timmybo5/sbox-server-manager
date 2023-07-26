@@ -14,7 +14,7 @@ let isStoppingServer = false;
 let startedHeartbeat = false;
 
 export type GeneralSettings = {
-  activeConfig: string;
+  activeConfig?: string;
   steamCMDPath: string;
   serverPath: string;
 };

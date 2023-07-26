@@ -17,8 +17,7 @@ const FileBrowser = ({
   onPathChange,
 }: FileBrowserProps) => {
   const openFileBrowser = async () => {
-    const windowAny = window as any;
-    const path = await windowAny.electronAPI.openFileBrowser(
+    const path = await window.electronAPI.openFileBrowser(
       fileName,
       fileExtensions,
     );

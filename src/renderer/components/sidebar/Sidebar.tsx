@@ -26,8 +26,6 @@ const Sidebar = () => {
     extraParams,
   } = useSelector(settingsSelector);
   const { serverRunning } = useSelector(dataSelector);
-  const windowAny = window as any;
-
   const constructParams = (): ServerSettings => {
     const serverParams: ServerSettings = {
       port,
@@ -71,7 +69,7 @@ const Sidebar = () => {
           disabled={serverRunning}
           iconSrc={StartIcon}
           onClick={() =>
-            windowAny.electronAPI.startServer(
+            window.electronAPI.startServer(
               { steamCMDPath, serverPath },
               constructParams(),
             )
@@ -81,7 +79,7 @@ const Sidebar = () => {
           tooltip='Stop Server'
           disabled={!serverRunning}
           iconSrc={StopIcon}
-          onClick={() => windowAny.electronAPI.stopServer()}
+          onClick={() => window.electronAPI.stopServer()}
         />
       </div>
     </div>
