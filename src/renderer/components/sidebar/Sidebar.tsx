@@ -22,6 +22,7 @@ const Sidebar = () => {
     map,
     maxPlayers,
     hostname,
+    password,
     rconPass,
     extraParams,
   } = useSelector(settingsSelector);
@@ -33,6 +34,7 @@ const Sidebar = () => {
       map,
       maxPlayers,
       hostname,
+      password,
       rconPass,
       extraParams,
     };

@@ -25,6 +25,7 @@ export type ServerSettings = {
   map: string;
   maxPlayers: number;
   hostname: string;
+  password: string;
   rconPass: string;
   extraParams: string;
 };
@@ -114,6 +115,7 @@ const startServer = (
     '+maxplayers ' + serverParams.maxPlayers,
     '+hostname ' + serverParams.hostname,
     '+rcon_password ' + serverParams.rconPass,
+    '+sv_password ' + serverParams.password,
     serverParams.extraParams,
   ];
 

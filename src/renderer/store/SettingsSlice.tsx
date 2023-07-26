@@ -10,6 +10,7 @@ export type ServerSettingPayloadKey =
   | 'map'
   | 'maxPlayers'
   | 'hostname'
+  | 'password'
   | 'rconPass'
   | 'extraParams';
 
@@ -41,6 +42,7 @@ export const defaultSettingsState = {
   map: 'facepunch.flatgrass',
   maxPlayers: 8,
   hostname: 'Sandbox Server',
+  password: '',
   rconPass: 'password',
   extraParams: '',
   scrollToBottom: true,
@@ -79,13 +81,16 @@ export const settingsSlice = createSlice({
     loadServerSettings: (state, { payload }) => {
       const serverSettings: ServerSettings = payload;
 
-      state.port = serverSettings.port;
-      state.gamemode = serverSettings.gamemode;
-      state.map = serverSettings.map;
-      state.maxPlayers = serverSettings.maxPlayers;
-      state.hostname = serverSettings.hostname;
-      state.rconPass = serverSettings.rconPass;
-      state.extraParams = serverSettings.extraParams;
+      state.port = serverSettings.port ?? defaultSettingsState.port;
+      state.gamemode = serverSettings.gamemode ?? defaultSettingsState.map;
+      state.map = serverSettings.map ?? defaultSettingsState.map;
+      state.maxPlayers =
+        serverSettings.maxPlayers ?? defaultSettingsState.maxPlayers;
+      state.hostname = serverSettings.hostname ?? defaultSettingsState.hostname;
+      state.password = serverSettings.password ?? defaultSettingsState.password;
+      state.rconPass = serverSettings.rconPass ?? defaultSettingsState.rconPass;
+      state.extraParams =
+        serverSettings.extraParams ?? defaultSettingsState.extraParams;
     },
   },
   extraReducers: (builder) => {
@@ -99,6 +104,7 @@ export const settingsSlice = createSlice({
         map: state.map,
         maxPlayers: state.maxPlayers,
         hostname: state.hostname,
+        password: state.password,
         rconPass: state.rconPass,
         extraParams: state.extraParams,
       };

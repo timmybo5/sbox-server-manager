@@ -48,6 +48,7 @@ const SettingsConfig = () => {
       map: defaultSettingsState.map,
       maxPlayers: defaultSettingsState.maxPlayers,
       hostname: defaultSettingsState.hostname,
+      password: defaultSettingsState.password,
       rconPass: defaultSettingsState.rconPass,
       extraParams: defaultSettingsState.extraParams,
     };

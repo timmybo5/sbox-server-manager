@@ -20,14 +20,22 @@ type SettingBlock = {
 };
 
 const ServerSettings = () => {
-  const { port, gamemode, map, maxPlayers, hostname, rconPass, extraParams } =
-    useSelector(settingsSelector);
+  const {
+    port,
+    gamemode,
+    map,
+    maxPlayers,
+    hostname,
+    password,
+    rconPass,
+    extraParams,
+  } = useSelector(settingsSelector);
   const dispatch = useDispatch();
 
   const settings: SettingBlock[] = [
     {
       title: 'Port',
-      value: port,
+      value: port.toString(),
       placeHolder: '27015',
       key: 'port',
       isNumber: true,
@@ -46,7 +54,7 @@ const ServerSettings = () => {
     },
     {
       title: 'Max Players',
-      value: maxPlayers,
+      value: maxPlayers.toString(),
       placeHolder: '8',
       key: 'maxPlayers',
     },
@@ -63,9 +71,16 @@ const ServerSettings = () => {
       key: 'rconPass',
     },
     {
+      title: 'Server Password',
+      value: password,
+      placeHolder: 'password',
+      key: 'password',
+      emptyAllowed: true,
+    },
+    {
       title: 'Extra',
       value: extraParams,
-      placeHolder: '-tickrate 33',
+      placeHolder: '+sv_cheats 1',
       key: 'extraParams',
       emptyAllowed: true,
     },
