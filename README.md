@@ -51,6 +51,7 @@ A Windows tool to manage sbox dedicated servers, powered by Electron.
 ### Server Settings
 
 <img src="https://user-images.githubusercontent.com/4988198/234031799-ea7105e9-5d32-4b51-9d89-69ae42164880.png" width="800"/>
+<img src="https://github.com/timmybo5/sbox-server-manager/assets/4988198/a6908502-b509-4b45-840e-293eb311a43a.png" width="800"/>
 
 ### Players
 
