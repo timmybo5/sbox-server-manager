@@ -74,5 +74,19 @@ export const runCommand = async (
     await serverRCON.authenticate(activeServerParams.rconPass);
   }
 
-  serverRCON.execute(cmd).then(onSuccess).catch(onFail);
+  const racePromise: Promise<string> = new Promise((resolve) =>
+    setTimeout(resolve, 100, 'Command not found.'),
+  );
+
+  // Prevent RCON util hanging and returning results minutes later
+  const result = await Promise.any([
+    racePromise,
+    serverRCON.execute(cmd).catch(onFail),
+  ]);
+
+  if (typeof result === 'string') {
+    onSuccess(result);
+  } else {
+    onFail('Error while running command: ' + cmd);
+  }
 };
