@@ -86,7 +86,7 @@ const TextInput = ({
       {fetchSuggestions && (
         <div
           className={
-            'scrollWrapper show' +
+            'scrollWrapper' +
             (isFocussed || isHovering ? ' show' : '') +
             (suggestions.length == 0 ? ' empty' : '')
           }
