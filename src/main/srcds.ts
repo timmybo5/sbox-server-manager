@@ -75,7 +75,7 @@ export const runCommand = async (
   }
 
   const racePromise: Promise<string> = new Promise((resolve) =>
-    setTimeout(resolve, 100, 'Command not found.'),
+    setTimeout(resolve, 100, ''),
   );
 
   // Prevent RCON util hanging and returning results minutes later
@@ -84,9 +84,12 @@ export const runCommand = async (
     serverRCON.execute(cmd).catch(onFail),
   ]);
 
-  if (typeof result === 'string') {
-    onSuccess(result);
-  } else {
+  if (typeof result !== 'string') {
     onFail('Error while running command: ' + cmd);
+    return;
+  }
+
+  if (result.length > 0) {
+    onSuccess(result);
   }
 };
