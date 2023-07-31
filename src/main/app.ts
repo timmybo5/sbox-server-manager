@@ -1,4 +1,4 @@
-import { BrowserWindow, app } from 'electron';
+import { BrowserWindow, app, session } from 'electron';
 import { createAppWindow } from './appWindow';
 import { registerPersistenceEvents } from './persistence';
 import { killServer, registerServerControlEvents } from './sbox';
@@ -9,7 +9,20 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-app.on('ready', createAppWindow);
+app.on('ready', () => {
+  createAppWindow();
+
+  // CSP
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Access-Control-Allow-Origin': ['*'],
+        'Content-Security-Policy': ['*'],
+      },
+    });
+  });
+});
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {

@@ -4,7 +4,7 @@ import {
   setServerSetting,
   settingsSelector,
 } from '@renderer/store/SettingsSlice';
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import './Settings.scss';
 import SettingsBlock from './SettingsBlock';
@@ -16,7 +16,20 @@ type SettingBlock = {
   placeHolder: string;
   key: ServerSettingPayloadKey;
   isNumber?: boolean;
+  fetchSuggestions?: (query: string) => Promise<ApiResponse>;
   emptyAllowed?: boolean;
+};
+
+export type ApiPackage = {
+  Title: string;
+  FullIdent: string;
+  Thumb: string;
+  Summary: string;
+};
+
+export type ApiResponse = {
+  TotalCount: number;
+  Packages: ApiPackage[];
 };
 
 const ServerSettings = () => {
@@ -31,6 +44,31 @@ const ServerSettings = () => {
     extraParams,
   } = useSelector(settingsSelector);
   const dispatch = useDispatch();
+  const [abortController, setAbortController] = useState(new AbortController());
+  const fpApiUrl = 'https://sap.facepunch.com/package/find/1?';
+
+  const fetchFromApi = async (
+    query: string,
+    type: string,
+  ): Promise<ApiResponse> => {
+    let controller = abortController;
+
+    // Cancel prev request before starting new one
+    if (abortController) {
+      abortController.abort();
+      controller = new AbortController();
+      setAbortController(controller);
+    }
+
+    const result = await fetch(
+      `${fpApiUrl}q=${query}+type:${type}+sort:popular&take=20`,
+      {
+        signal: controller.signal,
+      },
+    );
+
+    return await result.json();
+  };
 
   const settings: SettingBlock[] = [
     {
@@ -45,12 +83,18 @@ const ServerSettings = () => {
       value: gamemode,
       placeHolder: 'facepunch.sandbox',
       key: 'gamemode',
+      fetchSuggestions: (query: string) => {
+        return fetchFromApi(query, 'gamemode');
+      },
     },
     {
       title: 'Map',
       value: map,
       placeHolder: 'facepunch.flatgrass',
       key: 'map',
+      fetchSuggestions: (query: string) => {
+        return fetchFromApi(query, 'map');
+      },
     },
     {
       title: 'Max Players',
@@ -99,6 +143,7 @@ const ServerSettings = () => {
             placeHolder={setting.placeHolder}
             numbersOnly={setting.isNumber}
             emptyAllowed={setting.emptyAllowed}
+            fetchSuggestions={setting.fetchSuggestions}
             onValueChange={(newValue) => {
               dispatch(
                 setServerSetting({

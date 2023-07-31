@@ -28,10 +28,6 @@ $width: 200px;
     font-weight: bold;
     cursor: pointer;
 
-    &.open {
-      border-radius: 4px 4px 0 0;
-    }
-
     &:hover {
       border-color: var(--input-border-hover-color);
     }
@@ -53,8 +49,7 @@ $width: 200px;
     border-radius: 0 0 4px 4px;
     overflow: hidden;
     background-color: #222222;
-    box-shadow: rgba(0, 0, 0, 0.23) 0px 5px 10px,
-      rgba(0, 0, 0, 0.23) 0px 5px 10px;
+    box-shadow: rgba(0, 0, 0, 0.23) 0px 2px 5px, rgba(0, 0, 0, 0.23) 0px 2px 5px;
 
     &:empty {
       height: 30px;
