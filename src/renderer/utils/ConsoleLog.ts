@@ -1,4 +1,4 @@
-type ConsoleLogType = 'Manager' | 'Input' | 'Output' | 'CMDReply';
+type ConsoleLogType = 'Manager' | 'Input' | 'Output' | 'CMDReply' | 'Error';
 
 export type ConsoleLog = {
   type: ConsoleLogType;
@@ -13,6 +13,7 @@ export const formatConsoleLog = (log: ConsoleLog) => {
     case 'Input':
       log.value = '> ' + log.value;
       break;
+    case 'Error':
     case 'Output':
       log.value = getTimeStringForLog() + log.value;
       break;

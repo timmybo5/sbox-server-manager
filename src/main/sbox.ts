@@ -178,7 +178,15 @@ const startServer = (
 
   // stderr
   serverProc.stderr.on('data', (byteArray: Uint8Array) => {
-    console.error(`[SRCDS ERR]: ${byteArray}`);
+    const data = byteArray.toString().trim();
+    console.error(`[SRCDS ERR]: ${data}`);
+
+    const log: ConsoleLog = {
+      type: 'Error',
+      value: data,
+    };
+
+    appWindow.webContents.send('sendToConsole', log);
   });
 
   // on close

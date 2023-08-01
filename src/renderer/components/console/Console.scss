@@ -48,6 +48,10 @@ $input-height: 44px;
         color: var(--console-log-input-color);
       }
 
+      &.Error {
+        color: var(--console-log-error-color);
+      }
+
       span {
         color: grey;
       }
