@@ -10,7 +10,7 @@ module.exports = {
     // Set executable name
     executableName: 'Server Manager',
     // Set application copyright
-    appCopyright: 'Copyright (C) 2023 Timm Luyten',
+    appCopyright: 'Copyright (C) 2023 Timmybo5',
     // Set application icon
     icon: path.resolve('assets/icons/logo_small.ico'),
   },
