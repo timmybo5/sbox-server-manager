@@ -113,9 +113,9 @@ const startServer = (
     '+gamemode ' + serverParams.gamemode,
     '+map ' + serverParams.map,
     '+maxplayers ' + serverParams.maxPlayers,
-    '+hostname ' + serverParams.hostname,
-    '+rcon_password ' + serverParams.rconPass,
-    '+sv_password ' + serverParams.password,
+    '+hostname "' + serverParams.hostname + '"',
+    '+rcon_password "' + serverParams.rconPass + '"',
+    '+sv_password "' + serverParams.password + '"',
     serverParams.extraParams,
   ];
 
