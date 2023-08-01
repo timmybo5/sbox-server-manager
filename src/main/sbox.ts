@@ -102,25 +102,46 @@ const updateServer = (steamCMDPath: string, serverPath: string) => {
   });
 };
 
+type StartParameter = {
+  key: string;
+  value: string;
+  wrap?: boolean;
+};
+
+const constructStartParameters = (parameters: StartParameter[]): string[] => {
+  const startParms: string[] = [];
+
+  parameters.forEach((parm) => {
+    if (parm.value) {
+      const value = parm.wrap ? '"' + parm.value + '"' : parm.value;
+      startParms.push(parm.key + ' ' + value);
+    }
+  });
+
+  return startParms;
+};
+
 const startServer = (
   serverPath: string,
   serverParams: ServerSettings,
 ): ChildProcessWithoutNullStreams => {
   activeServerParams = serverParams;
 
-  const parameters = [
-    '+port ' + serverParams.port,
-    '+gamemode ' + serverParams.gamemode,
-    '+map ' + serverParams.map,
-    '+maxplayers ' + serverParams.maxPlayers,
-    '+hostname "' + serverParams.hostname + '"',
-    '+rcon_password "' + serverParams.rconPass + '"',
-    '+sv_password "' + serverParams.password + '"',
-    serverParams.extraParams,
-  ];
+  const startParms = constructStartParameters([
+    { key: '+port', value: serverParams.port.toString() },
+    { key: '+gamemode', value: serverParams.gamemode },
+    { key: '+map', value: serverParams.map },
+    { key: '+maxplayers', value: serverParams.maxPlayers.toString() },
+    { key: '+hostname', value: serverParams.hostname, wrap: true },
+    { key: '+rcon_password', value: serverParams.rconPass, wrap: true },
+    { key: '+sv_password', value: serverParams.password, wrap: true },
+    { key: '', value: serverParams.extraParams },
+  ]);
+
+  console.log(startParms);
 
   updateProc = null;
-  serverProc = spawn('sbox-server.exe', parameters, {
+  serverProc = spawn('sbox-server.exe', startParms, {
     cwd: serverPath,
     shell: true,
   });
