@@ -1,7 +1,7 @@
 {
   "name": "sbox-server-manager",
   "productName": "Server Manager",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Server Manager for s&box (SRCDS)",
   "main": ".webpack/main",
   "scripts": {
