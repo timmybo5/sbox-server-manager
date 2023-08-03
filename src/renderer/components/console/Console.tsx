@@ -42,7 +42,7 @@ const Console = ({ outputRef }: ConsoleProps) => {
   };
 
   return (
-    <div className='console'>
+    <div id='console'>
       <ConsoleOutput
         contentRef={outputRef}
         history={history}

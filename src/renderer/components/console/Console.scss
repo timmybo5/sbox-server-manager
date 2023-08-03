@@ -1,6 +1,6 @@
 $input-height: 44px;
 
-.console {
+#console {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -35,7 +35,7 @@ $input-height: 44px;
 
     & > p {
       font-size: 14px;
-      white-space: pre-line;
+      overflow-wrap: anywhere;
       margin: 0;
 
       &.Manager {
