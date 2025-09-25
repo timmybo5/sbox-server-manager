@@ -128,14 +128,13 @@ const startServer = (
   activeServerParams = serverParams;
 
   const startParms = constructStartParameters([
-    { key: '+port', value: serverParams.port.toString() },
-    { key: '+gamemode', value: serverParams.gamemode },
-    { key: '+map', value: serverParams.map },
-    { key: '+maxplayers', value: serverParams.maxPlayers.toString() },
+    { key: '+game', value: `${serverParams.gamemode} ${serverParams.map}` },
     { key: '+hostname', value: serverParams.hostname, wrap: true },
-    { key: '+rcon_password', value: serverParams.rconPass, wrap: true },
-    { key: '+sv_password', value: serverParams.password, wrap: true },
-    { key: '', value: serverParams.extraParams },
+    // Temporarily disabled until these flags are added again
+    // { key: '+maxplayers', value: serverParams.maxPlayers.toString() },
+    // { key: '+rcon_password', value: serverParams.rconPass, wrap: true },
+    // { key: '+sv_password', value: serverParams.password, wrap: true },
+    // { key: '', value: serverParams.extraParams },
   ]);
 
   console.log(startParms);

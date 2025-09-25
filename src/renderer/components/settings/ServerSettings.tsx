@@ -1,10 +1,11 @@
 import TextInput from '@components/input/TextInput';
+import useFPApi, { ApiResponse } from '@renderer/http/fp.http';
 import {
   ServerSettingPayloadKey,
   setServerSetting,
   settingsSelector,
 } from '@renderer/store/SettingsSlice';
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import './Settings.scss';
 import SettingsBlock from './SettingsBlock';
@@ -20,18 +21,6 @@ type SettingBlock = {
   emptyAllowed?: boolean;
 };
 
-export type ApiPackage = {
-  Title: string;
-  FullIdent: string;
-  Thumb: string;
-  Summary: string;
-};
-
-export type ApiResponse = {
-  TotalCount: number;
-  Packages: ApiPackage[];
-};
-
 const ServerSettings = () => {
   const {
     port,
@@ -44,31 +33,7 @@ const ServerSettings = () => {
     extraParams,
   } = useSelector(settingsSelector);
   const dispatch = useDispatch();
-  const [abortController, setAbortController] = useState(new AbortController());
-  const fpApiUrl = 'https://sap.facepunch.com/package/find/1?';
-
-  const fetchFromApi = async (
-    query: string,
-    type: string,
-  ): Promise<ApiResponse> => {
-    let controller = abortController;
-
-    // Cancel prev request before starting new one
-    if (abortController) {
-      abortController.abort();
-      controller = new AbortController();
-      setAbortController(controller);
-    }
-
-    const result = await fetch(
-      `${fpApiUrl}q=${query}+type:${type}+sort:popular&take=20`,
-      {
-        signal: controller.signal,
-      },
-    );
-
-    return await result.json();
-  };
+  const searchPackage = useFPApi();
 
   const settings: SettingBlock[] = [
     {
@@ -84,7 +49,7 @@ const ServerSettings = () => {
       placeHolder: 'facepunch.sandbox',
       key: 'gamemode',
       fetchSuggestions: (query: string) => {
-        return fetchFromApi(query, 'gamemode');
+        return searchPackage(query, 'game');
       },
     },
     {
@@ -93,7 +58,7 @@ const ServerSettings = () => {
       placeHolder: 'facepunch.flatgrass',
       key: 'map',
       fetchSuggestions: (query: string) => {
-        return fetchFromApi(query, 'map');
+        return searchPackage(query, 'map');
       },
     },
     {

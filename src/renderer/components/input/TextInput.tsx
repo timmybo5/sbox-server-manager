@@ -1,4 +1,4 @@
-import { ApiPackage, ApiResponse } from '@components/settings/ServerSettings';
+import { ApiPackage, ApiResponse } from '@renderer/http/fp.http';
 import React, { useEffect, useState } from 'react';
 import './TextInput.scss';
 
@@ -104,6 +104,7 @@ const TextInput = ({
             {!isFetching &&
               suggestions.map((suggestion) => (
                 <div
+                  key={suggestion.FullIdent}
                   className='suggestion'
                   onClick={() => {
                     setFocus(false);

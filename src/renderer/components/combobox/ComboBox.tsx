@@ -23,7 +23,7 @@ const ComboBox = ({ value, options, onSelect }: ComboBoxProps) => {
       </button>
       <div className='options'>
         {options.map((option, key) => {
-          if (option == value) return <React.Fragment />;
+          if (option === value) return <React.Fragment key={key} />;
 
           return (
             <div key={key}>

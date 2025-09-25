@@ -30,6 +30,7 @@ export function createAppWindow(): BrowserWindow {
       nodeIntegrationInSubFrames: false,
       preload: APP_WINDOW_PRELOAD_WEBPACK_ENTRY,
       sandbox: false,
+      webSecurity: false, // Fixes CORS with requests sent from renderer
       devTools: inDev(),
     },
   });
