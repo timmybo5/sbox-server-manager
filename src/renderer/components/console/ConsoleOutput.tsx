@@ -24,12 +24,13 @@ const ConsoleOutput = ({
 
   useEffect(() => {
     const output = contentRef.current;
-    const handleScroll = () => {
+    const checkCanScroll = () => {
       setCanScroll(!shouldScrollToBottom(contentRef));
     };
 
-    setTimeout(() => output.addEventListener('scroll', handleScroll), 1);
-    return () => output.removeEventListener('scroll', handleScroll);
+    checkCanScroll();
+    setTimeout(() => output.addEventListener('scroll', checkCanScroll), 1);
+    return () => output.removeEventListener('scroll', checkCanScroll);
   }, []);
 
   // Auto scroll
