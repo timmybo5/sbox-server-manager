@@ -1,17 +1,32 @@
 import { ConsoleLog } from '@renderer/utils/ConsoleLog';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { dialog, ipcMain } from 'electron';
+import { IPty, spawn as ptySpawn } from 'node-pty';
+import * as os from 'node:os';
+import path from 'path';
 import { appWindow } from './appWindow';
 import parseStatusPlayerList from './playerList';
-import { getLogValueFromData, runCommand, shouldLog, stopRCON } from './srcds';
+import {
+  getLogValueFromData,
+  isHostPulse,
+  shouldLog,
+  splitDataInLines,
+  stripAnsi,
+} from './srcds';
 
 const appID = 1892930;
 const updateServerCMD = `+force_install_dir #serverPath +login anonymous +app_update ${appID} +quit`;
 
 let updateProc: ChildProcessWithoutNullStreams;
-let serverProc: ChildProcessWithoutNullStreams;
+let serverProc: IPty;
 let isStoppingServer = false;
 let startedHeartbeat = false;
+let outputWaitingForCommand = false;
+let prevCommand = '';
+let connectedToSteam = false;
+let collectPlayerInfo = false;
+let collectingPlayerInfo = false;
+let statusCMDInfo: string[] = [];
 
 export type GeneralSettings = {
   activeConfig?: string;
@@ -74,7 +89,7 @@ const updateServer = (steamCMDPath: string, serverPath: string) => {
     value: `Checking for updates...`,
   };
 
-  appWindow.webContents.send('sendToConsole', log);
+  appWindow.webContents?.send('sendToConsole', log);
 
   // stdout
   updateProc.stdout.on('data', (byteArray: Uint8Array) => {
@@ -88,7 +103,7 @@ const updateServer = (steamCMDPath: string, serverPath: string) => {
         value: getLogValueFromData(data),
       };
 
-      appWindow.webContents.send('sendToConsole', log);
+      appWindow.webContents?.send('sendToConsole', log);
     }
   });
 
@@ -113,7 +128,7 @@ const constructStartParameters = (parameters: StartParameter[]): string[] => {
 
   parameters.forEach((parm) => {
     if (parm.value) {
-      const value = parm.wrap ? '"' + parm.value + '"' : parm.value;
+      const value = parm.wrap ? `"${parm.value}"` : parm.value;
       startParms.push(parm.key + ' ' + value);
     }
   });
@@ -124,25 +139,35 @@ const constructStartParameters = (parameters: StartParameter[]): string[] => {
 const startServer = (
   serverPath: string,
   serverParams: ServerSettings,
-): ChildProcessWithoutNullStreams => {
+): IPty => {
   activeServerParams = serverParams;
 
   const startParms = constructStartParameters([
     { key: '+game', value: `${serverParams.gamemode} ${serverParams.map}` },
     { key: '+hostname', value: serverParams.hostname, wrap: true },
+    // {
+    //   key: '+net_game_server_token',
+    //   value: '',
+    // },
     // Temporarily disabled until these flags are added again
     // { key: '+maxplayers', value: serverParams.maxPlayers.toString() },
     // { key: '+rcon_password', value: serverParams.rconPass, wrap: true },
     // { key: '+sv_password', value: serverParams.password, wrap: true },
-    // { key: '', value: serverParams.extraParams },
+    { key: '', value: serverParams.extraParams },
   ]);
 
-  console.log(startParms);
+  const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+  const exePath = path.join(serverPath, 'sbox-server.exe');
+  console.log({ exePath, startParms });
 
   updateProc = null;
-  serverProc = spawn('sbox-server.exe', startParms, {
+  serverProc = ptySpawn(shell, [exePath].concat(startParms), {
     cwd: serverPath,
-    shell: true,
+    cols: 999,
+    rows: 30,
+    name: 'xterm-color',
+    env: process.env,
+    useConpty: false, // Fallback to legacy to force same output format on different OS versions
   });
 
   // log
@@ -151,59 +176,104 @@ const startServer = (
     value: `Starting server with PID:${serverProc.pid}!`,
   };
 
-  appWindow.webContents.send('sendToConsole', log);
+  appWindow.webContents?.send('sendToConsole', log);
 
   // window title
-  activeAppWindowTitle = `SM - ${serverParams.hostname}`;
+  activeAppWindowTitle = 'SM - Starting...';
   appWindow.setTitle(activeAppWindowTitle);
 
-  setTimeout(updatePlayerList, 5000);
-
-  // stdout
-  serverProc.stdout.on('data', (byteArray: Uint8Array) => {
-    const data = byteArray.toString().trim();
-
-    if (shouldLog(data)) {
-      console.log(`[SRCDS OUT]: ${data}`);
-
-      const log: ConsoleLog = {
-        type: 'Output',
-        value: getLogValueFromData(data),
-      };
-
-      appWindow.webContents.send('sendToConsole', log);
-    }
+  // Stream
+  serverProc.onData((data) => {
+    const lines = splitDataInLines(data);
+    lines.forEach(processData);
   });
 
-  // stderr
-  serverProc.stderr.on('data', (byteArray: Uint8Array) => {
-    const data = byteArray.toString().trim();
-    console.error(`[SRCDS ERR]: ${data}`);
+  // Close
+  serverProc.onExit((data) => {
+    serverProc = null;
+
+    const msg = `[SRCDS] exited with code: ${data.exitCode}, signal: ${
+      data.signal ?? '-'
+    }`;
+    console.log(msg);
+
+    // Is null in before-quit event
+    activeAppWindowTitle = defaultAppWindowTitle;
+    appWindow?.setTitle(defaultAppWindowTitle);
 
     const log: ConsoleLog = {
       type: 'Error',
-      value: data,
+      value: msg,
     };
 
-    appWindow.webContents.send('sendToConsole', log);
-  });
-
-  // on close
-  serverProc.on('close', (code: number) => {
-    console.log(`[SRCDS] exited with code ${code}`);
+    appWindow.webContents?.send('sendToConsole', log);
   });
 
   return serverProc;
 };
 
+const processData = (data: string) => {
+  // Strip special characters
+  data = stripAnsi(data);
+
+  // console.log(data);
+
+  // Set title, block when waiting for cmd output to finish
+  if (connectedToSteam && isHostPulse(data) && !prevCommand) {
+    activeAppWindowTitle = `SM - ${data}`;
+    appWindow.setTitle(activeAppWindowTitle);
+  }
+
+  let msg = getLogValueFromData(data);
+  if (msg.length === 0) return;
+
+  // We can now send commands
+  if (!connectedToSteam && msg.includes('Connected to Steam')) {
+    connectedToSteam = true;
+    setTimeout(updatePlayerList, 5000);
+  }
+
+  // Collecting status info
+  // Server Startup: From '> status' to 'Not connected'
+  // Normal: From '> status' to '>'
+  if ((collectPlayerInfo && msg === '> status') || collectingPlayerInfo) {
+    collectPlayerInfo = false;
+    collectingPlayerInfo = true;
+    prevCommand = ''; // Not needed, we block output here
+
+    if (['>', 'Not connected'].includes(msg)) {
+      collectingPlayerInfo = false;
+    } else {
+      statusCMDInfo.push(msg);
+    }
+    return;
+  }
+
+  // Commands cause extra output
+  const cmdPrefix = '> ' + prevCommand;
+  if ((prevCommand && !msg.startsWith(cmdPrefix)) || msg === '>') {
+    outputWaitingForCommand = true;
+    return;
+  } else {
+    if (outputWaitingForCommand) {
+      outputWaitingForCommand = false;
+      msg = msg.slice(cmdPrefix.length).trim();
+      prevCommand = '';
+    }
+  }
+
+  if (msg.length === 0) return;
+
+  const log: ConsoleLog = {
+    type: 'Output',
+    value: msg,
+  };
+
+  appWindow.webContents?.send('sendToConsole', log);
+};
+
 export const killServer = () => {
   if (!isValidServer()) return;
-
-  // Is null in before-quit event
-  appWindow?.setTitle(defaultAppWindowTitle);
-
-  // RCON
-  stopRCON();
 
   // process.kill does not always close the process
   // detach so the process doesn't get killed if sm closes faster
@@ -215,37 +285,52 @@ export const killServer = () => {
 
 export const isValidServer = () => {
   return (
-    (serverProc != null && serverProc.exitCode == null) ||
-    (updateProc != null && updateProc.exitCode == null)
+    serverProc != null || (updateProc != null && updateProc.exitCode == null)
   );
 };
 
 const updatePlayerList = () => {
   if (!isValidServer()) {
-    appWindow.webContents.send('updatePlayers', []);
+    appWindow.webContents?.send('updatePlayers', []);
     return;
   }
 
+  collectPlayerInfo = true;
+
+  setTimeout(() => {
+    const players = parseStatusPlayerList(statusCMDInfo);
+    appWindow.webContents?.send('updatePlayers', players);
+    statusCMDInfo = [];
+  }, 1000);
+
   runCommand(
     'status',
-    (data) => {
-      const players = parseStatusPlayerList(data);
-      appWindow.webContents.send('updatePlayers', players);
-      appWindow.setTitle(
-        `${activeAppWindowTitle} - ${players.length}/${activeServerParams.maxPlayers}`,
-      );
+    () => {
+      // Empty for now
     },
     (reply) => {
       console.error(`[RCON ERR]: ${reply}`);
     },
   );
 
-  setTimeout(updatePlayerList, 3000);
+  setTimeout(updatePlayerList, 5000);
 };
 
 const serverHeartbeat = () => {
-  appWindow.webContents.send('serverHeartbeat', isValidServer());
+  appWindow.webContents?.send('serverHeartbeat', isValidServer());
   setTimeout(serverHeartbeat, 1000);
+};
+
+export const runCommand = async (
+  cmd: string,
+  onSuccess: () => void,
+  onFail: (reason: string) => void,
+) => {
+  if (!isValidServer()) return onFail('Invalid server process');
+  if (!connectedToSteam) return;
+  serverProc.write(`${cmd}\r\n`);
+  prevCommand = cmd;
+  onSuccess();
 };
 
 export const registerServerControlEvents = () => {
@@ -264,13 +349,8 @@ export const registerServerControlEvents = () => {
 
     runCommand(
       cmd,
-      (reply) => {
-        const log: ConsoleLog = {
-          type: 'CMDReply',
-          value: reply,
-        };
-
-        appWindow.webContents.send('sendToConsole', log);
+      () => {
+        /* No reply atm */
       },
       (reply) => {
         console.error(`[RCON ERR]: ${reply}`);
@@ -283,14 +363,14 @@ export const registerServerControlEvents = () => {
   ipcMain.on('kickPlayer', async (event, id: string) => {
     if (!isValidServer()) return;
     runCommand(
-      'kickid ' + id + ' "Kicked by Server Manager!"',
-      (reply) => {
+      'kick ' + id + ' "Kicked by Server Manager!"',
+      () => {
         const log: ConsoleLog = {
           type: 'CMDReply',
-          value: reply,
+          value: `Kicked player ${id}!`,
         };
 
-        appWindow.webContents.send('sendToConsole', log);
+        appWindow.webContents?.send('sendToConsole', log);
       },
       (reply) => {
         console.error(`[RCON ERR]: ${reply}`);
@@ -346,7 +426,6 @@ export const registerServerControlEvents = () => {
     if (!isValidServer()) return;
     isStoppingServer = true;
 
-    stopRCON();
     killServer();
 
     const log: ConsoleLog = {
@@ -354,7 +433,7 @@ export const registerServerControlEvents = () => {
       value: 'Server killed!',
     };
 
-    appWindow.webContents.send('sendToConsole', log);
+    appWindow.webContents?.send('sendToConsole', log);
   });
 };
 

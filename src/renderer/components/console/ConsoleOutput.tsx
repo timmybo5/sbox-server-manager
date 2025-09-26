@@ -1,5 +1,7 @@
+import ArrowDownIcon from '@assets/images/arrow_down.png';
 import { ConsoleLog } from '@renderer/utils/ConsoleLog';
-import React, { MutableRefObject, useEffect } from 'react';
+import { shouldScrollToBottom } from '@renderer/utils/ScrollToBottom';
+import React, { MutableRefObject, useEffect, useState } from 'react';
 import './Console.scss';
 
 interface ConsoleOutputProps {
@@ -8,21 +10,32 @@ interface ConsoleOutputProps {
   contentRef: MutableRefObject<HTMLDivElement>;
 }
 
-// https://stackoverflow.com/questions/18614301/keep-overflow-div-scrolled-to-bottom-unless-user-scrolls-up
-// scroll down auto
-
 const ConsoleOutput = ({
   history,
   scrollToBottom,
   contentRef,
 }: ConsoleOutputProps) => {
+  const [canScroll, setCanScroll] = useState(false);
+  const scrollDown = () => {
+    const output = contentRef.current;
+    const scrollDiff = output.scrollHeight - output.clientHeight;
+    output.scrollTop = scrollDiff;
+  };
+
+  useEffect(() => {
+    const output = contentRef.current;
+    const handleScroll = () => {
+      setCanScroll(!shouldScrollToBottom(contentRef));
+    };
+
+    setTimeout(() => output.addEventListener('scroll', handleScroll), 1);
+    return () => output.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Auto scroll
   useEffect(() => {
-    if (contentRef == null) return;
-    const output = contentRef.current;
-    const heightDiff = output.scrollHeight - output.clientHeight;
-
-    if (scrollToBottom) output.scrollTop = heightDiff;
+    if (contentRef == null || !scrollToBottom) return;
+    scrollDown();
   }, [history]);
 
   return (
@@ -36,6 +49,13 @@ const ConsoleOutput = ({
           />
         ))}
       </div>
+      <button
+        className='scrollBtn'
+        style={{ opacity: canScroll ? 0.8 : 0.3 }}
+        onClick={scrollDown}
+      >
+        <img src={ArrowDownIcon} />
+      </button>
     </div>
   );
 };

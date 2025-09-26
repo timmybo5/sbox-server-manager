@@ -36,12 +36,18 @@ const ServerSettings = () => {
   const searchPackage = useFPApi();
 
   const settings: SettingBlock[] = [
+    // {
+    //   title: 'Port',
+    //   value: port.toString(),
+    //   placeHolder: '27015',
+    //   key: 'port',
+    //   isNumber: true,
+    // },
     {
-      title: 'Port',
-      value: port.toString(),
-      placeHolder: '27015',
-      key: 'port',
-      isNumber: true,
+      title: 'Hostname',
+      value: hostname,
+      placeHolder: 'Cool Server',
+      key: 'hostname',
     },
     {
       title: 'Gamemode',
@@ -61,31 +67,25 @@ const ServerSettings = () => {
         return searchPackage(query, 'map');
       },
     },
-    {
-      title: 'Max Players',
-      value: maxPlayers.toString(),
-      placeHolder: '8',
-      key: 'maxPlayers',
-    },
-    {
-      title: 'Hostname',
-      value: hostname,
-      placeHolder: 'Cool Server',
-      key: 'hostname',
-    },
-    {
-      title: 'RCON Password',
-      value: rconPass,
-      placeHolder: 'password',
-      key: 'rconPass',
-    },
-    {
-      title: 'Server Password',
-      value: password,
-      placeHolder: 'password',
-      key: 'password',
-      emptyAllowed: true,
-    },
+    // {
+    //   title: 'Max Players',
+    //   value: maxPlayers.toString(),
+    //   placeHolder: '8',
+    //   key: 'maxPlayers',
+    // },
+    // {
+    //   title: 'RCON Password',
+    //   value: rconPass,
+    //   placeHolder: 'password',
+    //   key: 'rconPass',
+    // },
+    // {
+    //   title: 'Server Password',
+    //   value: password,
+    //   placeHolder: 'password',
+    //   key: 'password',
+    //   emptyAllowed: true,
+    // },
     {
       title: 'Extra',
       value: extraParams,

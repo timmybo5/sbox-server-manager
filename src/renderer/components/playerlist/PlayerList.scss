@@ -6,10 +6,11 @@
   height: 100%;
 
   .id {
-    width: 50px;
+    width: 275px;
   }
 
   .ping {
+    display: none; // Hidden as we can't get this value anymore
     width: 75px;
   }
 
@@ -34,6 +35,7 @@
 
     .count {
       margin-left: auto;
+      flex-shrink: 0;
     }
   }
 

@@ -5,14 +5,14 @@ const rootDir = process.cwd();
 module.exports = {
   // Packager Config
   packagerConfig: {
-    // Create asar archive for main, renderer process files
-    asar: true,
     // Set executable name
     executableName: 'Server Manager',
     // Set application copyright
     appCopyright: 'Copyright (C) 2023 Timmybo5',
     // Set application icon
-    icon: path.resolve('assets/icons/logo_small.ico'),
+    icon: 'assets/icons/logo',
+    // Create asar archive for main, renderer process files
+    asar: false, // Disable to everything is accessible from node-pty (node, exe, ...)
   },
   // Forge Makers
   makers: [
@@ -20,6 +20,11 @@ module.exports = {
       // Squirrel.Windows is a no-prompt, no-hassle, no-admin method of installing
       // Windows applications and is therefore the most user friendly you can get.
       name: '@electron-forge/maker-squirrel',
+      config: {
+        iconUrl:
+          'https://raw.githubusercontent.com/timmybo5/sbox-server-manager/refs/heads/master/assets/icons/logo.ico',
+        setupIcon: 'assets/icons/logo.ico',
+      },
     },
     {
       // The Zip target builds basic .zip files containing your packaged application.

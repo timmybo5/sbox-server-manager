@@ -6,16 +6,19 @@ A Windows tool to manage sbox dedicated servers, powered by Electron.
 
 <img src="https://user-images.githubusercontent.com/4988198/234030980-7711a168-e8ff-4587-acf9-c6d07fd5f2ed.png" width="800"/>
 
+### Before Use
+
+Server Manager uses SteamCMD, you need to install it seperately, you can find information about how to install and use SteamCMD here:
+<https://developer.valvesoftware.com/wiki/SteamCMD>.
+
+Once SteamCMD has been installed, you can install the [s&box Server](https://steamdb.info/app/1892930/info/) by running the following command in Windows Terminal from the directory you installed SteamCMD.
+`./steamcmd +login anonymous +app_update 1892930 validate +quit`
+
+**<ins>Install SteamCMD and run the s&box install cmd once<ins>**
+
 ### How does it work?
 
-**Output**:
-
-- Server Manager spawns sbox-server.exe (scrds) as a child process and captures all output via stdout.
-
-**Input**:
-
-- All input is handled through RCON since scrds servers require a valid console handle for sdtin.<br/>
-- Server Manager uses netstat to find what address matches the hosting port and establishes a direct connection.
+- Server Manager spawns a PTY shell with sbox-server.exe (scrds) as a child process and directly controls the process.
 
 ### Features
 
@@ -31,12 +34,17 @@ A Windows tool to manage sbox dedicated servers, powered by Electron.
 - React.js + Typescript
 - Redux Toolkit
 - Webpack
+- Node-pty
 
 ### Building
 
 - Requirements:
   - npm v8+
   - node v18+
+  - Python >=v3.7
+  - Visual Studio:
+    - MSVC v142 (or newer) C++ build tools
+    - Windows 10/11 SDK (the one matching your OS)
 
 1. Install dependencies with `npm i`
 2. Build with `npm run make`
@@ -44,7 +52,7 @@ A Windows tool to manage sbox dedicated servers, powered by Electron.
 ### Special Thanks
 
 - https://github.com/codesbiome/electron-react-webpack-typescript-2023
-- https://github.com/EnriqCG/rcon-srcds
+- https://github.com/microsoft/node-pty
 
 ## Interface
 

@@ -44,7 +44,7 @@ const PlayerList = () => {
                 className={'kick '}
                 onClick={() => {
                   setKicking(true);
-                  kickPlayer(player.id);
+                  kickPlayer(player.steamID);
                 }}
               >
                 kick

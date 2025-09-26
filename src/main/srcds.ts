@@ -1,8 +1,5 @@
-import { execSync } from 'child_process';
-import { default as RCON, default as Rcon } from 'rcon-srcds';
+import ansiRegex from 'ansi-regex';
 import { activeServerParams } from './sbox';
-
-let serverRCON: Rcon;
 
 const blacklistOutputReg = /^([0-9]{2}:[0-9]{2}:[0-9]{2})( engine\/E)?$/;
 export const shouldLog = (data: string): boolean => {
@@ -18,78 +15,52 @@ export const shouldLog = (data: string): boolean => {
   return hits == null;
 };
 
-const dataToLogReg = /^([0-9]{2}:[0-9]{2}:[0-9]{2})(.*)$/;
+// Physics 0.01ms, NavMesh 0.00ms, Animation 0.00ms Scene 0.09ms
+const pulseSceneReg =
+  /Physics[\s\S]*NavMesh[\s\S]*Animation[\s\S]*Scene[\s\S]*ms/;
+const stripPulse = (str: string) => {
+  return str.replace(pulseSceneReg, '').replace(getFullPulseHostReg(), '');
+};
+
+const escapeRegex = (str: string) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+// Server Manager testing (0/32) [0:00:31] Network 0.00ms
+const pulseHostReg =
+  '[\\s\\S]*\\([0-9]{1,2}\\/[0-9]{1,2}\\)[\\s\\S]*Network[\\s\\S]*ms';
+const getFullPulseHostReg = () => {
+  const reg = !activeServerParams
+    ? pulseHostReg
+    : `${escapeRegex(activeServerParams.hostname)} ${pulseHostReg}`;
+  return new RegExp(reg);
+};
+
+export const isHostPulse = (str: string) => {
+  return str.match(getFullPulseHostReg());
+};
+
+const timeReg = /([0-9]{2}:[0-9]{2}:[0-9]{2})/;
+const stripTime = (str: string) => {
+  return str.replace(timeReg, '');
+};
+
+// Strips Ansi color codes + cursor and console code tricks
+export const stripAnsi = (str: string) => {
+  return str.replace(ansiRegex(), '');
+};
+
 export const getLogValueFromData = (data: string): string => {
-  const hits = dataToLogReg.exec(data);
-  return hits == null ? data : hits[2];
+  let strippedData = stripPulse(data);
+  // console.log('After Pulse: ', data);
+  strippedData = stripTime(strippedData);
+  // console.log('After Time: ', data);
+  strippedData = strippedData.replace(/^\s*Generic /, '');
+  // console.log('After Generic: ', data);
+  return strippedData.trim();
 };
 
-export const findHostAddress = (port: number): string => {
-  const data = execSync('netstat.exe -a -n -o | findstr.exe :' + port);
-  const splitStats = data
-    .toString()
-    .split(' ')
-    .filter((i) => i);
-  let nextValueIsAddr = false;
-  let addrWithPort: string;
-
-  splitStats.every((value) => {
-    if (value == 'TCP') {
-      nextValueIsAddr = true;
-    } else if (nextValueIsAddr) {
-      addrWithPort = value;
-      return false;
-    }
-
-    return true;
-  });
-
-  const addr = addrWithPort.split(':')[0];
-  //console.log(addr);
-
-  return addr;
-};
-
-// https://github.com/EnriqCG/rcon-srcds
-export const initRCON = (port: number): RCON => {
-  const addr = findHostAddress(port);
-  return new Rcon({ host: addr, port });
-};
-
-export const stopRCON = () => {
-  serverRCON?.disconnect();
-  serverRCON = null;
-};
-
-export const runCommand = async (
-  cmd: string,
-  onSuccess: (reply: string) => void,
-  onFail: (reply: string) => void,
-) => {
-  if (serverRCON == null) {
-    serverRCON = initRCON(activeServerParams.port);
-  }
-
-  if (!serverRCON.isAuthenticated()) {
-    await serverRCON.authenticate(activeServerParams.rconPass);
-  }
-
-  const racePromise: Promise<string> = new Promise((resolve) =>
-    setTimeout(resolve, 100, ''),
-  );
-
-  // Prevent RCON util hanging and returning results minutes later
-  const result = await Promise.any([
-    racePromise,
-    serverRCON.execute(cmd).catch(onFail),
-  ]);
-
-  if (typeof result !== 'string') {
-    onFail('Error while running command: ' + cmd);
-    return;
-  }
-
-  if (result.length > 0) {
-    onSuccess(result);
-  }
+const lineReg = /\r\n|\r|\n/;
+export const splitDataInLines = (data: string) => {
+  return data.split(lineReg);
 };

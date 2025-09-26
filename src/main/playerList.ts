@@ -1,58 +1,39 @@
 import { Player } from '@components/playerlist/PlayerList';
 
 /* Format to match
-const data = "id     time ping loss      state   rate adr name \n \
-   1      BOT    0    0     active      0 'Seymour' \n \
-   2      BOT    0    0     active      0 'Clancy' \n \
-   3      BOT    0    0     active      0 'Kearney' \n \
-   4      BOT    0    0     active      0 'Patty' \n \
-   5      BOT    0    0     active      0 'Selma' \n \
-   6    00:05   16    0     active  80000 [U:1:60538536]:0 'Zombie Extinguisher' \n \
-#end"
+    'IsHost: True',
+    'Socket 1: SteamIdSocket - steamid:90274654284276744',
+    'Socket 2: SteamIpSocket - [::6835:8a52:902:0]:0',
+    '1: Connected 9c024e60-6c7b-4e99-a153-f7b24b0713c3 76561198184584611 unknown [592/270]',
+    '2: Connected 6f68c7f4-feac-49f9-9113-5abff1df94a9 76561198020804264 unknown [571/263]',
+    'PLAYERS ----------',
+    '9c024e60-6c7b-4e99-a153-f7b24b0713c3  76561198184584611       Connected               Gucci ????              9/25/2025 8:04:04 AM +00:00',
+    '6f68c7f4-feac-49f9-9113-5abff1df94a9  76561198020804264       Connected               Zombie Extinguisher             9/25/2025 8:04:08 AM +00:00'
 */
 
 const playerListRegex =
-  /id[\s]+time[\s]+ping[\s]+loss[\s]+state[\s]+rate[\s]+adr[\s]+name([\S\s]*?)#end$/gm;
-const parseStatusPlayerList = (data: string): Player[] => {
-  const matches = data.match(playerListRegex);
-
-  // Split match per newline
-  const newLineSplit = matches[0].split(/\r?\n/).filter((e) => e.trim());
+  /^(\S+)\s+(\d{17}|[0-9a-fA-F-]{36})\s+\S+\s+(.+?)\s+\d{1,2}\/\d{1,2}\/\d{4}/;
+const parseStatusPlayerList = (data: string[]): Player[] => {
+  //console.log('DEBUG', { data });
   const players: Player[] = [];
 
-  newLineSplit.forEach((match) => {
-    // Removes all whitespace characters from the line
-    const stringOnlyArr = match.split(/(\s+)/).filter((e) => e.trim());
-    const firstVal = stringOnlyArr[0];
-    let [id, ping, steamID, name] = ['', '', '', ''];
+  for (let i = 0; i < data.length; i++) {
+    const line = data[i];
+    const matches = line.match(playerListRegex);
+    if (!matches) continue;
 
-    // Skip start and end
-    if (firstVal != 'id' && firstVal != '#end') {
-      id = stringOnlyArr[0];
-      ping = stringOnlyArr[2];
+    const id = matches[1];
+    const steamID = matches[2];
+    const name = matches[3];
 
-      if (stringOnlyArr[1] == 'BOT') {
-        steamID = 'BOT';
+    players.push({
+      id,
+      ping: '-',
+      steamID,
+      name,
+    });
+  }
 
-        // Slice in case name had spaces
-        name = stringOnlyArr.slice(6).join(' ');
-      } else {
-        steamID = stringOnlyArr[6];
-        name = stringOnlyArr.slice(7).join(' ');
-      }
-
-      players.push({
-        id,
-        ping,
-        steamID,
-
-        // Remove quotes
-        name: name.substring(1, name.length - 1),
-      });
-    }
-
-    //console.log(`->id:${id} steamID:${steamID} name:${name}`);
-  });
   return players;
 };
 

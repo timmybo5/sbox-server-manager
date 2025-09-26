@@ -35,9 +35,11 @@ const Console = ({ outputRef }: ConsoleProps) => {
     if (cmd.trim().length == 0) return;
 
     const res = await window.electronAPI.runCommand(cmd);
-
     if (res.trim().length > 0) {
       addToOutput(res);
+
+      // Always scroll down when entering command
+      dispatch(setScrollToBottom(true));
     }
   };
 

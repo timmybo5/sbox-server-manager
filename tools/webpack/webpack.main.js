@@ -1,3 +1,5 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
 module.exports = {
   /**
    * This is the main entry point for your application, it's the first file
@@ -13,4 +15,17 @@ module.exports = {
     alias: require('./webpack.aliases'),
   },
   stats: 'minimal',
+  externals: {
+    'node-pty': 'commonjs node-pty',
+  },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'node_modules/node-pty',
+          to: 'node_modules/node-pty',
+        },
+      ],
+    }),
+  ],
 };
