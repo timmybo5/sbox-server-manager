@@ -18,7 +18,7 @@ Once SteamCMD has been installed, you can install the [s&box Server](https://ste
 
 ### How does it work?
 
-- Server Manager spawns a PTY shell with sbox-server.exe (scrds) as a child process and directly controls the process.
+Server Manager spawns a PTY shell with sbox-server.exe (scrds) as a child process and directly controls the process.
 
 ### Features
 
@@ -64,3 +64,4 @@ Once SteamCMD has been installed, you can install the [s&box Server](https://ste
 ### Players
 
 <img src="https://user-images.githubusercontent.com/4988198/234032142-9d02457b-baf0-4dc8-809a-154c4ef172ee.png" width="800"/>
+
