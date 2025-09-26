@@ -158,10 +158,14 @@ const startServer = (
 
   const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
   const exePath = path.join(serverPath, 'sbox-server.exe');
+
+  // Wrap exePath to make sure paths with spaces work, & to fix PS issue with quotes
+  const shellCMD = [`& "${exePath}"`].concat(startParms);
+
   console.log({ exePath, startParms });
 
   updateProc = null;
-  serverProc = ptySpawn(shell, [exePath].concat(startParms), {
+  serverProc = ptySpawn(shell, shellCMD, {
     cwd: serverPath,
     cols: 999,
     rows: 30,
