@@ -28,8 +28,10 @@ const ConsoleOutput = ({
       setCanScroll(!shouldScrollToBottom(contentRef));
     };
 
-    checkCanScroll();
-    setTimeout(() => output.addEventListener('scroll', checkCanScroll), 1);
+    setTimeout(() => {
+      checkCanScroll();
+      output.addEventListener('scroll', checkCanScroll);
+    }, 1);
     return () => output.removeEventListener('scroll', checkCanScroll);
   }, []);
 
