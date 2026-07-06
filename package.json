@@ -5,6 +5,7 @@
   "description": "Server Manager for s&box (SRCDS)",
   "main": ".webpack/main",
   "scripts": {
+    "postinstall": "patch-package",
     "start": "cross-env NODE_ENV=development electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -43,7 +44,7 @@
     "copy-webpack-plugin": "^13.0.1",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.3",
-    "electron": "26.6.10",
+    "electron": "^26.6.10",
     "eslint": "^8.36.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.27.5",
@@ -54,6 +55,7 @@
     "less-loader": "11.1.0",
     "node-abi": "^4.14.0",
     "node-loader": "^2.0.0",
+    "patch-package": "^8.0.1",
     "react-refresh": "^0.14.0",
     "sass": "^1.60.0",
     "sass-loader": "^13.2.1",
@@ -67,10 +69,16 @@
     "ansi-regex": "^6.2.2",
     "compare-versions": "^6.0.0",
     "electron-squirrel-startup": "^1.0.0",
-    "node-pty": "^1.0.0",
+    "node-pty": "1.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.0.5",
     "react-router-dom": "^6.10.0"
+  },
+  "overrides": {
+    "node-gyp": "^13.0.1"
+  },
+  "engines": {
+    "node": "^22"
   }
 }

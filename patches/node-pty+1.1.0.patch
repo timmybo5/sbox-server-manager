@@ -1,0 +1,43 @@
+diff --git a/node_modules/node-pty/deps/winpty/src/winpty.gyp b/node_modules/node-pty/deps/winpty/src/winpty.gyp
+index 1ac5758..9a6fdff 100644
+--- a/node_modules/node-pty/deps/winpty/src/winpty.gyp
++++ b/node_modules/node-pty/deps/winpty/src/winpty.gyp
+@@ -10,7 +10,7 @@
+     #    make -j4 CXX=i686-w64-mingw32-g++ LDFLAGS="-static -static-libgcc -static-libstdc++"
+ 
+     'variables': {
+-        'WINPTY_COMMIT_HASH%': '<!(cmd /c "cd shared && GetCommitHash.bat")',
++        'WINPTY_COMMIT_HASH%': 'none',
+     },
+     'target_defaults' : {
+         'defines' : [
+@@ -22,7 +22,7 @@
+         'include_dirs': [
+             # Add the 'src/gen' directory to the include path and force gyp to
+             # run the script (re)generating the version header.
+-            '<!(cmd /c "cd shared && UpdateGenVersion.bat <(WINPTY_COMMIT_HASH)")',
++            '<!(cmd /c "cd shared && .\\UpdateGenVersion.bat <(WINPTY_COMMIT_HASH)")',
+         ]
+     },
+     'targets' : [
+diff --git a/node_modules/node-pty/src/win/conpty.cc b/node_modules/node-pty/src/win/conpty.cc
+index 7b286d3..6612b0e 100644
+--- a/node_modules/node-pty/src/win/conpty.cc
++++ b/node_modules/node-pty/src/win/conpty.cc
+@@ -30,14 +30,14 @@
+   ProcThreadAttributeValue(22, FALSE, TRUE, FALSE)
+ 
+ typedef VOID* HPCON;
++#endif
++// SDK (>= 17763) defines PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE and HPCON but not these typedefs
+ typedef HRESULT (__stdcall *PFNCREATEPSEUDOCONSOLE)(COORD c, HANDLE hIn, HANDLE hOut, DWORD dwFlags, HPCON* phpcon);
+ typedef HRESULT (__stdcall *PFNRESIZEPSEUDOCONSOLE)(HPCON hpc, COORD newSize);
+ typedef HRESULT (__stdcall *PFNCLEARPSEUDOCONSOLE)(HPCON hpc);
+ typedef void (__stdcall *PFNCLOSEPSEUDOCONSOLE)(HPCON hpc);
+ typedef void (__stdcall *PFNRELEASEPSEUDOCONSOLE)(HPCON hpc);
+ 
+-#endif
+-
+ struct pty_baton {
+   int id;
+   HANDLE hIn;
