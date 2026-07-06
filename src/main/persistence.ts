@@ -32,6 +32,11 @@ const loadData = (fileName: string, path: string): any => {
 };
 
 const getConfigFiles = (): string[] => {
+  if (!fs.existsSync(serverSettingsPath)) {
+    fs.mkdirSync(serverSettingsPath);
+    return [];
+  }
+
   const files = fs.readdirSync(serverSettingsPath);
   const filesNoExt = files.map((f) => f.replace('.json', ''));
 
