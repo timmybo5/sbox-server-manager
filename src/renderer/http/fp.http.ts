@@ -12,7 +12,7 @@ export type ApiResponse = {
   Packages: ApiPackage[];
 };
 
-const baseURL = 'https://services.facepunch.com/sbox/package/find/1?';
+const baseURL = 'https://public.facepunch.com/sbox/package/find/1?';
 
 const useFPApi = () => {
   const [abortController, setAbortController] = useState(new AbortController());
