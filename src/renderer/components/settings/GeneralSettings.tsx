@@ -43,6 +43,7 @@ const GeneralSettings = () => {
           fileExtensions={['exe']}
           placeholder='steamcmd.exe not found!'
           onPathChange={onSteamCMDPathChange}
+          onOpen={() => window.electronAPI.openSteamCMDSetup()}
         />
       </SettingsBlock>
       <SettingsBlock title='Server Path' className='extraWide'>
@@ -52,6 +53,8 @@ const GeneralSettings = () => {
           fileExtensions={['exe']}
           placeholder='sbox-server.exe not found!'
           onPathChange={onServerPathChange}
+          onOpen={() => window.electronAPI.openSboxServerSetup(steamCMDPath)}
+          disabled={!steamCMDPath}
         />
       </SettingsBlock>
     </div>

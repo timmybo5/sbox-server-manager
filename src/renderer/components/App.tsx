@@ -15,7 +15,7 @@ import { shouldScrollToBottom } from '@renderer/utils/ScrollToBottom';
 import { IpcMainEvent } from 'electron';
 import React, { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import './App.scss';
 import Console from './console/Console';
 import PlayerList, { Player } from './playerlist/PlayerList';
@@ -26,6 +26,7 @@ import Sidebar from './sidebar/Sidebar';
 const App = () => {
   const consoleOutputRef = useRef(null);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // History
   useEffect(() => {
@@ -49,6 +50,17 @@ const App = () => {
     );
 
     return () => window.electronAPI.removeOnPlayersUpdate();
+  }, []);
+
+  // Navigate to console when SteamCMD or s&box server installation begins
+  useEffect(() => {
+    window.electronAPI.onSteamCMDInstalling(() => navigate('/console'));
+    return () => window.electronAPI.removeOnSteamCMDInstalling();
+  }, []);
+
+  useEffect(() => {
+    window.electronAPI.onSboxServerInstalling(() => navigate('/console'));
+    return () => window.electronAPI.removeOnSboxServerInstalling();
   }, []);
 
   // Heartbeat

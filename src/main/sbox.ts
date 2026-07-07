@@ -1,10 +1,9 @@
-import { ConsoleLog } from '@renderer/utils/ConsoleLog';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { dialog, ipcMain } from 'electron';
 import { IPty, spawn as ptySpawn } from 'node-pty';
 import * as os from 'node:os';
 import path from 'path';
-import { appWindow } from './appWindow';
+import { appWindow, sendLog } from './appWindow';
 import parseStatusPlayerList from './playerList';
 import {
   getLogValueFromData,
@@ -84,12 +83,10 @@ const updateServer = (steamCMDPath: string, serverPath: string) => {
   });
 
   // log
-  const log: ConsoleLog = {
+  sendLog({
     type: 'Manager',
     value: `Checking for updates...`,
-  };
-
-  appWindow.webContents?.send('sendToConsole', log);
+  });
 
   // stdout
   updateProc.stdout.on('data', (byteArray: Uint8Array) => {
@@ -97,13 +94,10 @@ const updateServer = (steamCMDPath: string, serverPath: string) => {
 
     if (shouldLog(data)) {
       console.log(`[STEAMCMD OUT]: ${data}`);
-
-      const log: ConsoleLog = {
+      sendLog({
         type: 'Output',
         value: getLogValueFromData(data),
-      };
-
-      appWindow.webContents?.send('sendToConsole', log);
+      })
     }
   });
 
@@ -175,12 +169,10 @@ const startServer = (
   });
 
   // log
-  const log: ConsoleLog = {
+  sendLog({
     type: 'Manager',
     value: `Starting server with PID:${serverProc.pid}!`,
-  };
-
-  appWindow.webContents?.send('sendToConsole', log);
+  })
 
   // window title
   activeAppWindowTitle = 'SM - Starting...';
@@ -205,12 +197,10 @@ const startServer = (
     activeAppWindowTitle = defaultAppWindowTitle;
     appWindow?.setTitle(defaultAppWindowTitle);
 
-    const log: ConsoleLog = {
+    sendLog({
       type: 'Error',
       value: msg,
-    };
-
-    appWindow.webContents?.send('sendToConsole', log);
+    });
   });
 
   return serverProc;
@@ -268,12 +258,10 @@ const processData = (data: string) => {
 
   if (msg.length === 0) return;
 
-  const log: ConsoleLog = {
+  sendLog({
     type: 'Output',
     value: msg,
-  };
-
-  appWindow.webContents?.send('sendToConsole', log);
+  });
 };
 
 export const killServer = () => {
@@ -282,7 +270,7 @@ export const killServer = () => {
   // process.kill does not always close the process
   // detach so the process doesn't get killed if sm closes faster
   const pid = updateProc != null ? updateProc.pid : serverProc.pid;
-  spawn('taskkill', ['/pid', pid.toString(), '/f', '/t'], {
+  spawn('taskkill', ['/pid', pid!.toString(), '/f', '/t'], {
     detached: true,
   });
 };
@@ -369,12 +357,10 @@ export const registerServerControlEvents = () => {
     runCommand(
       'kick ' + id + ' "Kicked by Server Manager!"',
       () => {
-        const log: ConsoleLog = {
+       sendLog({
           type: 'CMDReply',
           value: `Kicked player ${id}!`,
-        };
-
-        appWindow.webContents?.send('sendToConsole', log);
+        });
       },
       (reply) => {
         console.error(`[RCON ERR]: ${reply}`);
@@ -432,12 +418,10 @@ export const registerServerControlEvents = () => {
 
     killServer();
 
-    const log: ConsoleLog = {
+    sendLog({
       type: 'Manager',
       value: 'Server killed!',
-    };
-
-    appWindow.webContents?.send('sendToConsole', log);
+    });
   });
 };
 

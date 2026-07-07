@@ -2,6 +2,8 @@ import { BrowserWindow, app, session } from 'electron';
 import { createAppWindow } from './appWindow';
 import { registerPersistenceEvents } from './persistence';
 import { killServer, registerServerControlEvents } from './sbox';
+import { registerSboxServerEvents } from './sboxserver';
+import { registerSteamCMDEvents } from './steamcmd';
 import { versionControl } from './versionControl';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -43,5 +45,7 @@ app.on('before-quit', () => {
 app.whenReady().then(() => {
   versionControl.warnIfNotLatest();
   registerServerControlEvents();
+  registerSteamCMDEvents();
+  registerSboxServerEvents();
   registerPersistenceEvents();
 });

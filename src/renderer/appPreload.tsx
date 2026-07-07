@@ -10,6 +10,7 @@ declare global {
 }
 
 export interface ElectronAPI {
+  openSteamCMDSetup: () => Promise<string>;
   openFileBrowser: (
     fileName: string,
     fileExtensions: string[],
@@ -33,6 +34,11 @@ export interface ElectronAPI {
     callback: (event: IpcMainEvent, isRunning: boolean) => void,
   ) => void;
   removeOnServerHeartbeat: () => void;
+  onSteamCMDInstalling: (callback: () => void) => void;
+  removeOnSteamCMDInstalling: () => void;
+  openSboxServerSetup: (steamCMDPath: string) => Promise<string>;
+  onSboxServerInstalling: (callback: () => void) => void;
+  removeOnSboxServerInstalling: () => void;
   saveGeneralSettings: (generalSettings: GeneralSettings) => void;
   loadGeneralSettings: () => Promise<GeneralSettings>;
   saveServerSettings: (
@@ -47,6 +53,7 @@ export interface ElectronAPI {
 
 const electronAPI = {
   // Control
+  openSteamCMDSetup: () => ipcRenderer.invoke('openSteamCMDSetup'),
   openFileBrowser: (fileName: string, fileExtensions: string[]) =>
     ipcRenderer.invoke('openFileBrowser', fileName, fileExtensions),
   runCommand: (cmd: string) => ipcRenderer.invoke('runCommand', cmd),
@@ -72,6 +79,18 @@ const electronAPI = {
     ipcRenderer.on('serverHeartbeat', callback),
   removeOnServerHeartbeat: () =>
     ipcRenderer.removeAllListeners('serverHeartbeat'),
+
+  onSteamCMDInstalling: (callback: () => void) =>
+    ipcRenderer.on('steamCMDInstalling', callback),
+  removeOnSteamCMDInstalling: () =>
+    ipcRenderer.removeAllListeners('steamCMDInstalling'),
+
+  openSboxServerSetup: (steamCMDPath: string) =>
+    ipcRenderer.invoke('openSboxServerSetup', steamCMDPath),
+  onSboxServerInstalling: (callback: () => void) =>
+    ipcRenderer.on('sboxServerInstalling', callback),
+  removeOnSboxServerInstalling: () =>
+    ipcRenderer.removeAllListeners('sboxServerInstalling'),
 
   // Persistence
   saveGeneralSettings: (generalSettings: GeneralSettings) =>

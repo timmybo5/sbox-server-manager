@@ -7,6 +7,8 @@ interface FileBrowserProps {
   fileExtensions: string[];
   placeholder: string;
   onPathChange: (path: string) => void;
+  onOpen?: () => Promise<string>;
+  disabled?: boolean;
 }
 
 const FileBrowser = ({
@@ -15,17 +17,19 @@ const FileBrowser = ({
   fileName,
   fileExtensions,
   onPathChange,
+  onOpen,
+  disabled = false,
 }: FileBrowserProps) => {
   const openFileBrowser = async () => {
-    const path = await window.electronAPI.openFileBrowser(
-      fileName,
-      fileExtensions,
-    );
-    onPathChange(path);
+    if (disabled) return;
+    const result = onOpen
+      ? await onOpen()
+      : await window.electronAPI.openFileBrowser(fileName, fileExtensions);
+    onPathChange(result);
   };
 
   return (
-    <div className='fileBrowser'>
+    <div className={`fileBrowser${disabled ? ' disabled' : ''}`}>
       {path.length == 0 ? (
         <p className='invalid' onClick={openFileBrowser}>
           {placeholder}

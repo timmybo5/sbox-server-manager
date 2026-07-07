@@ -1,3 +1,4 @@
+import { ConsoleLog } from '@renderer/utils/ConsoleLog';
 import { inDev } from '@src/utils/helpers';
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
@@ -52,3 +53,7 @@ export function createAppWindow(): BrowserWindow {
 
   return appWindow;
 }
+
+export const sendLog = (log: ConsoleLog) => {
+  appWindow.webContents?.send('sendToConsole', log);
+};
