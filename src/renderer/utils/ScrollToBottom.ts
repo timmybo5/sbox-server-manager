@@ -1,9 +1,9 @@
-import { MutableRefObject } from 'react';
+import { RefObject } from 'react';
 
 export const shouldScrollToBottom = (
-  scrollableElement: MutableRefObject<HTMLDivElement>,
+  scrollableElement: RefObject<HTMLDivElement>,
 ): boolean => {
-  if (scrollableElement == null || scrollableElement.current == null) return;
+  if (scrollableElement == null || scrollableElement.current == null) return false;
   const output = scrollableElement.current;
   const heightDiff = output.scrollHeight - output.clientHeight;
   const isScrolledToBottom = heightDiff <= output.scrollTop + 20;

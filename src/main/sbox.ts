@@ -16,8 +16,8 @@ import {
 const appID = 1892930;
 const updateServerCMD = `+force_install_dir #serverPath +login anonymous +app_update ${appID} +quit`;
 
-let updateProc: ChildProcessWithoutNullStreams;
-let serverProc: IPty;
+let updateProc: ChildProcessWithoutNullStreams | null;
+let serverProc: IPty | null;
 let isStoppingServer = false;
 let startedHeartbeat = false;
 let outputWaitingForCommand = false;
@@ -54,13 +54,13 @@ const updateAndStartServer = (
   serverParams: ServerSettings,
 ) => {
   // window title
-  defaultAppWindowTitle ??= appWindow.getTitle();
+  defaultAppWindowTitle ??= appWindow?.getTitle() ?? '';
   activeAppWindowTitle = 'SM - Updating...';
-  appWindow.setTitle(activeAppWindowTitle);
+  appWindow?.setTitle(activeAppWindowTitle);
 
   updateServer(steamCMDPath, serverPath);
 
-  updateProc.on('close', (code: number) => {
+  updateProc?.on('close', (code: number) => {
     if (!isStoppingServer) {
       startServer(serverPath, serverParams);
     }
@@ -176,7 +176,7 @@ const startServer = (
 
   // window title
   activeAppWindowTitle = 'SM - Starting...';
-  appWindow.setTitle(activeAppWindowTitle);
+  appWindow?.setTitle(activeAppWindowTitle);
 
   // Stream
   let lineBuffer = '';
@@ -217,7 +217,7 @@ const processData = (data: string) => {
   // Set title, block when waiting for cmd output to finish
   if (connectedToSteam && isHostPulse(data) && !prevCommand) {
     activeAppWindowTitle = `SM - ${data}`;
-    appWindow.setTitle(activeAppWindowTitle);
+    appWindow?.setTitle(activeAppWindowTitle);
   }
 
   let msg = getLogValueFromData(data);
@@ -271,7 +271,7 @@ export const killServer = () => {
 
   // process.kill does not always close the process
   // detach so the process doesn't get killed if sm closes faster
-  const pid = updateProc != null ? updateProc.pid : serverProc.pid;
+  const pid = updateProc != null ? updateProc.pid : serverProc?.pid;
   spawn('taskkill', ['/pid', pid!.toString(), '/f', '/t'], {
     detached: true,
   });
@@ -285,7 +285,7 @@ export const isValidServer = () => {
 
 const updatePlayerList = () => {
   if (!isValidServer()) {
-    appWindow.webContents?.send('updatePlayers', []);
+    appWindow?.webContents?.send('updatePlayers', []);
     return;
   }
 
@@ -293,7 +293,7 @@ const updatePlayerList = () => {
 
   setTimeout(() => {
     const players = parseStatusPlayerList(statusCMDInfo);
-    appWindow.webContents?.send('updatePlayers', players);
+    appWindow?.webContents?.send('updatePlayers', players);
     statusCMDInfo = [];
   }, 1000);
 
@@ -311,7 +311,7 @@ const updatePlayerList = () => {
 };
 
 const serverHeartbeat = () => {
-  appWindow.webContents?.send('serverHeartbeat', isValidServer());
+  appWindow?.webContents?.send('serverHeartbeat', isValidServer());
   setTimeout(serverHeartbeat, 1000);
 };
 
@@ -322,7 +322,7 @@ export const runCommand = async (
 ) => {
   if (!isValidServer()) return onFail('Invalid server process');
   if (!connectedToSteam) return;
-  serverProc.write(`${cmd}\r\n`);
+  serverProc?.write(`${cmd}\r\n`);
   prevCommand = cmd;
   onSuccess();
 };
@@ -331,7 +331,7 @@ export const registerServerControlEvents = () => {
   ipcMain.handle(
     'openFileBrowser',
     async (event, fileName: string, fileExtensions: string[]) => {
-      const { canceled, filePaths } = await dialog.showOpenDialog(appWindow, {
+      const { canceled, filePaths } = await dialog.showOpenDialog(appWindow!, {
         filters: [{ name: fileName, extensions: fileExtensions }],
       });
       return canceled ? 'cancelled' : filePaths[0];

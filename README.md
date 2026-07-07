@@ -42,8 +42,8 @@ Server Manager spawns a PTY shell with sbox-server.exe (scrds) as a child proces
   - npm v8+
   - node v22 LTS
   - Python >=v3.12
-  - Visual Studio 2022 or 2026 (Insiders):
-    - MSVC v143 / v145 C++ build tools
+  - Visual Studio 2026 (Insiders):
+    - MSVC v145 C++ build tools
     - Windows 10/11 SDK (the one matching your OS)
 
 1. Install dependencies with `npm i`

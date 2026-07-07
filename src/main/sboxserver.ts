@@ -22,7 +22,7 @@ const installSboxServer = (steamCMDPath: string, installDir: string): Promise<st
       ].join('\r\n'),
     );
 
-    appWindow.webContents?.send('sboxServerInstalling');
+    appWindow?.webContents?.send('sboxServerInstalling');
     sendLog({ type: 'Manager', value: 'Installing s&box server...' });
 
     const init = spawn(
@@ -53,7 +53,7 @@ const installSboxServer = (steamCMDPath: string, installDir: string): Promise<st
 
 export const registerSboxServerEvents = () => {
   ipcMain.handle('openSboxServerSetup', async (event, steamCMDPath: string) => {
-    const { response: isInstalled } = await dialog.showMessageBox(appWindow, {
+    const { response: isInstalled } = await dialog.showMessageBox(appWindow!, {
       type: 'question',
       buttons: ['Yes', 'No'],
       defaultId: 0,
@@ -62,13 +62,13 @@ export const registerSboxServerEvents = () => {
     });
 
     if (isInstalled === 0) {
-      const { canceled, filePaths } = await dialog.showOpenDialog(appWindow, {
+      const { canceled, filePaths } = await dialog.showOpenDialog(appWindow!, {
         filters: [{ name: 'sbox-server', extensions: ['exe'] }],
       });
       return canceled ? 'cancelled' : filePaths[0];
     }
 
-    const { response: wantsDownload } = await dialog.showMessageBox(appWindow, {
+    const { response: wantsDownload } = await dialog.showMessageBox(appWindow!, {
       type: 'question',
       buttons: ['Yes', 'No'],
       defaultId: 0,
@@ -79,7 +79,7 @@ export const registerSboxServerEvents = () => {
     if (wantsDownload !== 0) return 'cancelled';
 
     if (!steamCMDPath) {
-      await dialog.showMessageBox(appWindow, {
+      await dialog.showMessageBox(appWindow!, {
         type: 'warning',
         title: 's&box Server',
         message: 'SteamCMD path is not set. Please configure SteamCMD first.',
@@ -87,7 +87,7 @@ export const registerSboxServerEvents = () => {
       return 'cancelled';
     }
 
-    const { canceled, filePaths } = await dialog.showOpenDialog(appWindow, {
+    const { canceled, filePaths } = await dialog.showOpenDialog(appWindow!, {
       properties: ['openDirectory'],
       title: 'Choose s&box server install location',
     });

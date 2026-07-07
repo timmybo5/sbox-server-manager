@@ -7,7 +7,7 @@ import path from 'path';
 declare const APP_WINDOW_WEBPACK_ENTRY: string;
 declare const APP_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-export let appWindow: BrowserWindow;
+export let appWindow: BrowserWindow | null;
 
 /**
  * Create Application Window
@@ -43,7 +43,7 @@ export function createAppWindow(): BrowserWindow {
   appWindow.loadURL(APP_WINDOW_WEBPACK_ENTRY);
 
   // Show window when its ready to
-  appWindow.on('ready-to-show', () => appWindow.show());
+  appWindow.on('ready-to-show', () => appWindow?.show());
 
   // Close all windows when main window is closed
   appWindow.on('close', () => {
@@ -55,5 +55,5 @@ export function createAppWindow(): BrowserWindow {
 }
 
 export const sendLog = (log: ConsoleLog) => {
-  appWindow.webContents?.send('sendToConsole', log);
+  appWindow?.webContents?.send('sendToConsole', log);
 };

@@ -5,14 +5,14 @@ import {
 } from '@renderer/store/SettingsSlice';
 import { ConsoleLog } from '@renderer/utils/ConsoleLog';
 import { shouldScrollToBottom } from '@renderer/utils/ScrollToBottom';
-import React, { MutableRefObject } from 'react';
+import React, { RefObject } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import './Console.scss';
 import ConsoleInput from './ConsoleInput';
 import ConsoleOutput from './ConsoleOutput';
 
 interface ConsoleProps {
-  outputRef: MutableRefObject<HTMLDivElement>;
+  outputRef: RefObject<HTMLDivElement>;
 }
 
 const Console = ({ outputRef }: ConsoleProps) => {

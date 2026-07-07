@@ -24,7 +24,7 @@ import ServerSettings from './settings/ServerSettings';
 import Sidebar from './sidebar/Sidebar';
 
 const App = () => {
-  const consoleOutputRef = useRef(null);
+  const consoleOutputRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 

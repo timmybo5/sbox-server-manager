@@ -39,7 +39,7 @@ const installSteamCMD = (installDir: string): Promise<string> => {
               // ignore cleanup errors
             }
 
-            appWindow.webContents?.send('steamCMDInstalling');
+            appWindow?.webContents?.send('steamCMDInstalling');
             sendLog({ type: 'Manager', value: 'Initializing SteamCMD...' });
 
             const init = spawn(
@@ -78,7 +78,7 @@ const installSteamCMD = (installDir: string): Promise<string> => {
 
 export const registerSteamCMDEvents = () => {
   ipcMain.handle('openSteamCMDSetup', async () => {
-    const { response: isInstalled } = await dialog.showMessageBox(appWindow, {
+    const { response: isInstalled } = await dialog.showMessageBox(appWindow!, {
       type: 'question',
       buttons: ['Yes', 'No'],
       defaultId: 0,
@@ -87,13 +87,13 @@ export const registerSteamCMDEvents = () => {
     });
 
     if (isInstalled === 0) {
-      const { canceled, filePaths } = await dialog.showOpenDialog(appWindow, {
+      const { canceled, filePaths } = await dialog.showOpenDialog(appWindow!, {
         filters: [{ name: 'steamcmd', extensions: ['exe'] }],
       });
       return canceled ? 'cancelled' : filePaths[0];
     }
 
-    const { response: wantsDownload } = await dialog.showMessageBox(appWindow, {
+    const { response: wantsDownload } = await dialog.showMessageBox(appWindow!, {
       type: 'question',
       buttons: ['Yes', 'No'],
       defaultId: 0,
@@ -103,7 +103,7 @@ export const registerSteamCMDEvents = () => {
 
     if (wantsDownload !== 0) return 'cancelled';
 
-    const { canceled, filePaths } = await dialog.showOpenDialog(appWindow, {
+    const { canceled, filePaths } = await dialog.showOpenDialog(appWindow!, {
       properties: ['openDirectory'],
       title: 'Choose SteamCMD install location',
     });
