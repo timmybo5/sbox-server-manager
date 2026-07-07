@@ -68,7 +68,7 @@ const Sidebar = () => {
       <div className='controls'>
         <SidebarButton
           tooltip='Start Server'
-          disabled={serverRunning}
+          disabled={serverRunning || !steamCMDPath || !serverPath}
           iconSrc={StartIcon}
           onClick={() =>
             window.electronAPI.startServer(
