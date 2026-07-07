@@ -3,6 +3,13 @@ const path = require('path');
 const rootDir = process.cwd();
 
 module.exports = {
+  // Skip native module recompilation — node-pty 1.1.0 ships N-API prebuilts in
+  // prebuilds/win32-x64/ that are ABI-stable and work with Electron 26 as-is.
+  // Without this, electron-rebuild silently runs MSBuild for 15-30 min because
+  // it doesn't recognise node-pty's prebuild naming convention.
+  rebuildConfig: {
+    onlyModules: [],
+  },
   // Packager Config
   packagerConfig: {
     // Set executable name
