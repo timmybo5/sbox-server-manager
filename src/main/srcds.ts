@@ -15,9 +15,9 @@ export const shouldLog = (data: string): boolean => {
   return hits == null;
 };
 
-// Physics 0.01ms, NavMesh 0.00ms, Animation 0.00ms Scene 0.09ms
+// Physics 0.01ms, NavMesh 0.00ms, Animation 0.00ms Update 0.00ms
 const pulseSceneReg =
-  /Physics[\s\S]*NavMesh[\s\S]*Animation[\s\S]*Scene[\s\S]*ms/;
+  /Physics[\s\S]*NavMesh[\s\S]*Animation[\s\S]*Update[\s\S]*ms/;
 const stripPulse = (str: string) => {
   return str.replace(pulseSceneReg, '').replace(getFullPulseHostReg(), '');
 };

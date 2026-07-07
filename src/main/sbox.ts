@@ -179,8 +179,10 @@ const startServer = (
   appWindow.setTitle(activeAppWindowTitle);
 
   // Stream
+  let lineBuffer = '';
   serverProc.onData((data) => {
-    const lines = splitDataInLines(data);
+    const lines = splitDataInLines(lineBuffer + data);
+    lineBuffer = lines.pop() ?? '';
     lines.forEach(processData);
   });
 
