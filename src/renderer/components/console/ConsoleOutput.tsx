@@ -1,13 +1,13 @@
 import ArrowDownIcon from '@assets/images/arrow_down.png';
 import { ConsoleLog } from '@renderer/utils/ConsoleLog';
 import { shouldScrollToBottom } from '@renderer/utils/ScrollToBottom';
-import React, { MutableRefObject, useEffect, useState } from 'react';
+import React, { RefObject, useEffect, useState } from 'react';
 import './Console.scss';
 
 interface ConsoleOutputProps {
   history: ConsoleLog[];
   scrollToBottom: boolean;
-  contentRef: MutableRefObject<HTMLDivElement>;
+  contentRef: RefObject<HTMLDivElement>;
 }
 
 const ConsoleOutput = ({
@@ -18,12 +18,14 @@ const ConsoleOutput = ({
   const [canScroll, setCanScroll] = useState(false);
   const scrollDown = () => {
     const output = contentRef.current;
+    if (output == null) return;
     const scrollDiff = output.scrollHeight - output.clientHeight;
     output.scrollTop = scrollDiff;
   };
 
   useEffect(() => {
     const output = contentRef.current;
+    if (output == null) return;
     const checkCanScroll = () => {
       setCanScroll(!shouldScrollToBottom(contentRef));
     };
@@ -52,13 +54,15 @@ const ConsoleOutput = ({
           />
         ))}
       </div>
-      <button
-        className='scrollBtn'
-        style={{ opacity: canScroll ? 0.8 : 0.3 }}
-        onClick={scrollDown}
-      >
-        <img src={ArrowDownIcon} />
-      </button>
+      <div>
+        <button
+          className='scrollBtn'
+          style={{ opacity: canScroll ? 0.8 : 0.3 }}
+          onClick={scrollDown}
+        >
+          <img src={ArrowDownIcon} />
+        </button>
+      </div>
     </div>
   );
 };
