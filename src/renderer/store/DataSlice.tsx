@@ -29,9 +29,12 @@ export const dataSlice = createSlice({
     setServerRunning: (state, { payload }) => {
       state.serverRunning = payload;
     },
+    clearHistory: (state) => {
+      state.history = [];
+    },
   },
 });
 
 export const dataSelector = (state: RootState) => state.data;
-export const { addToHistory, updatePlayers, setServerRunning } =
+export const { addToHistory, updatePlayers, setServerRunning, clearHistory } =
   dataSlice.actions;

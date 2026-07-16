@@ -1,7 +1,10 @@
 import ArrowDownIcon from '@assets/images/arrow_down.png';
+import DeleteIcon from '@assets/images/delete.png';
+import { clearHistory } from '@renderer/store/DataSlice';
 import { ConsoleLog } from '@renderer/utils/ConsoleLog';
 import { shouldScrollToBottom } from '@renderer/utils/ScrollToBottom';
 import React, { RefObject, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import './Console.scss';
 
 interface ConsoleOutputProps {
@@ -16,11 +19,15 @@ const ConsoleOutput = ({
   contentRef,
 }: ConsoleOutputProps) => {
   const [canScroll, setCanScroll] = useState(false);
+  const dispatch = useDispatch();
   const scrollDown = () => {
     const output = contentRef.current;
     if (output == null) return;
     const scrollDiff = output.scrollHeight - output.clientHeight;
     output.scrollTop = scrollDiff;
+  };
+  const clear = () => {
+    dispatch(clearHistory());
   };
 
   useEffect(() => {
@@ -54,9 +61,16 @@ const ConsoleOutput = ({
           />
         ))}
       </div>
-      <div>
+      <div className='actionButtons'>
         <button
-          className='scrollBtn'
+          className='actionBtn clear'
+          style={{ opacity: history.length > 0 ? 0.8 : 0.3 }}
+          onClick={clear}
+        >
+          <img src={DeleteIcon} />
+        </button>
+        <button
+          className='actionBtn'
           style={{ opacity: canScroll ? 0.8 : 0.3 }}
           onClick={scrollDown}
         >
