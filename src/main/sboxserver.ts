@@ -35,7 +35,13 @@ const installSboxServer = (steamCMDPath: string, installDir: string): Promise<st
       { windowsHide: true },
     );
 
-    const cleanup = () => { try { fs.unlinkSync(batchPath); } catch (_) {} };
+    const cleanup = () => {
+      try {
+        fs.unlinkSync(batchPath);
+      } catch (_) {
+        // ignore cleanup errors
+      }
+    };
 
     init.on('close', () => {
       cleanup();
@@ -57,7 +63,7 @@ export const registerSboxServerEvents = () => {
       type: 'question',
       buttons: ['Yes', 'No'],
       defaultId: 0,
-      title: 's&box Server',
+      title: 'S&box server',
       message: 'Is s&box server installed locally?',
     });
 
@@ -72,8 +78,8 @@ export const registerSboxServerEvents = () => {
       type: 'question',
       buttons: ['Yes', 'No'],
       defaultId: 0,
-      title: 's&box Server',
-      message: 'Would you like to download and install s&box Server?',
+      title: 'S&box server',
+      message: 'Would you like to download and install s&box server?',
     });
 
     if (wantsDownload !== 0) return 'cancelled';
@@ -81,7 +87,7 @@ export const registerSboxServerEvents = () => {
     if (!steamCMDPath) {
       await dialog.showMessageBox(appWindow!, {
         type: 'warning',
-        title: 's&box Server',
+        title: 'S&box server',
         message: 'SteamCMD path is not set. Please configure SteamCMD first.',
       });
       return 'cancelled';

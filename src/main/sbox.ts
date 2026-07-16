@@ -1,4 +1,4 @@
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import { dialog, ipcMain } from 'electron';
 import { IPty, spawn as ptySpawn } from 'node-pty';
 import * as os from 'node:os';
@@ -16,7 +16,7 @@ import {
 const appID = 1892930;
 const updateServerCMD = `+force_install_dir #serverPath +login anonymous +app_update ${appID} +quit`;
 
-let updateProc: ChildProcessWithoutNullStreams | null;
+let updateProc: IPty | null;
 let serverProc: IPty | null;
 let isStoppingServer = false;
 let startedHeartbeat = false;
@@ -58,9 +58,7 @@ const updateAndStartServer = (
   activeAppWindowTitle = 'SM - Updating...';
   appWindow?.setTitle(activeAppWindowTitle);
 
-  updateServer(steamCMDPath, serverPath);
-
-  updateProc?.on('close', (code: number) => {
+  updateServer(steamCMDPath, serverPath, () => {
     if (!isStoppingServer) {
       startServer(serverPath, serverParams);
     }
@@ -72,14 +70,25 @@ const updateAndStartServer = (
   }
 };
 
-const updateServer = (steamCMDPath: string, serverPath: string) => {
+const updateServer = (
+  steamCMDPath: string,
+  serverPath: string,
+  onDone: () => void,
+) => {
   const parameter = updateServerCMD.replace('#serverPath', serverPath);
 
   console.log(steamCMDPath + ' - ' + serverPath + ' - ' + parameter);
 
-  updateProc = spawn('steamcmd.exe', [parameter], {
+  // SteamCMD buffers all output when writing to a pipe, use a pseudo-console
+  // so it streams in real time (same as the server process)
+  const exePath = path.join(steamCMDPath, 'steamcmd.exe');
+  updateProc = ptySpawn(exePath, parameter, {
     cwd: steamCMDPath,
-    shell: true,
+    cols: 999,
+    rows: 30,
+    name: 'xterm-color',
+    env: process.env,
+    useConpty: false, // Fallback to legacy to force same output format on different OS versions
   });
 
   // log
@@ -88,26 +97,28 @@ const updateServer = (steamCMDPath: string, serverPath: string) => {
     value: `Checking for updates...`,
   });
 
-  // stdout
-  updateProc.stdout.on('data', (byteArray: Uint8Array) => {
-    const data = byteArray.toString().trim();
+  // Stream
+  let lineBuffer = '';
+  updateProc.onData((data) => {
+    const lines = splitDataInLines(lineBuffer + data);
+    lineBuffer = lines.pop() ?? '';
+    lines.forEach((line) => {
+      const msg = stripAnsi(line).trim();
 
-    if (shouldLog(data)) {
-      console.log(`[STEAMCMD OUT]: ${data}`);
-      sendLog({
-        type: 'Output',
-        value: getLogValueFromData(data),
-      })
-    }
+      if (shouldLog(msg)) {
+        console.log(`[STEAMCMD OUT]: ${msg}`);
+        sendLog({
+          type: 'Output',
+          value: getLogValueFromData(msg),
+        });
+      }
+    });
   });
 
-  // stderr
-  updateProc.stderr.on('data', (byteArray: Uint8Array) => {
-    console.error(`[STEAMCMD ERR]: ${byteArray}`);
-  });
-
-  updateProc.on('close', (code: number) => {
-    console.log(`[STEAMCMD] exited with code ${code}`);
+  updateProc.onExit(({ exitCode }) => {
+    console.log(`[STEAMCMD] exited with code ${exitCode}`);
+    updateProc = null;
+    onDone();
   });
 };
 
@@ -158,7 +169,6 @@ const startServer = (
 
   console.log({ exePath, startParms });
 
-  updateProc = null;
   serverProc = ptySpawn(shell, shellCMD, {
     cwd: serverPath,
     cols: 999,
@@ -278,9 +288,7 @@ export const killServer = () => {
 };
 
 export const isValidServer = () => {
-  return (
-    serverProc != null || (updateProc != null && updateProc.exitCode == null)
-  );
+  return serverProc != null || updateProc != null;
 };
 
 const updatePlayerList = () => {
